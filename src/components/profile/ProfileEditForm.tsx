@@ -39,6 +39,11 @@ const ProfileEditForm = () => {
     console.log("Uploaded image:", uploadedImage);
   };
 
+  const bioValue = form.watch("bio")
+  console.log(bioValue)
+  const bioLength = bioValue?.length || 0
+  console.log(bioLength)
+
   return (
     <div className="flex flex-col gap-10">
       <Alert >
@@ -83,6 +88,9 @@ const ProfileEditForm = () => {
                   />
                 </FormControl>
                 <FormMessage />
+                <div>
+                  <p className="text-right text-gray-400">{bioLength}/150</p>
+                </div>
               </FormItem>
             )}
           />
