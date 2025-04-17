@@ -1,8 +1,7 @@
-//Initialise firebase app
 import { initializeApp } from "firebase/app";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
 
-export const firebaseConfig = {
+const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
@@ -11,7 +10,7 @@ export const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-let messaging;
+let messaging: ReturnType<typeof getMessaging>;
 if (typeof window !== "undefined" && "navigator" in window) {
   const app = initializeApp(firebaseConfig);
   messaging = getMessaging(app);

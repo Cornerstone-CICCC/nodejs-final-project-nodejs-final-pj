@@ -1,36 +1,53 @@
-importScripts("https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js");
-importScripts("https://www.gstatic.com/firebasejs/8.10.0/firebase-messaging.js");
+importScripts(
+  "https://www.gstatic.com/firebasejs/10.11.1/firebase-app-compat.js"
+);
+importScripts(
+  "https://www.gstatic.com/firebasejs/10.11.1/firebase-messaging-compat.js"
+);
 
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  apiKey: "AIzaSyCdyWwrKUFv8VlTg1HKiOBLVdrnMraEe3E",
+  authDomain: "chat-app-4f33c.firebaseapp.com",
+  projectId: "chat-app-4f33c",
+  storageBucket: "chat-app-4f33c.firebasestorage.app",
+  appId: "141243351703",
+  messagingSenderId: "1:141243351703:web:46ece2a03c9351151b9fd2",
 };
 
 firebase.initializeApp(firebaseConfig);
 
-let messaging;
-if (firebase.messaging.isSupported()) {
-  messaging = firebase.messaging();
-}
+const messaging = firebase.messaging();
 
-if (messaging) {
-  messaging.onBackgroundMessage((payload) => {
-    console.log('Received background message: ', payload);
+messaging.onBackgroundMessage((payload) => {
+  const notificationTitle = payload.notification?.title || "Notification";
+  const notificationOptions = {
+    body:
+      payload.notification?.body ||
+      "You have a new message. Please check it out",
+    icon: "/assets/icon.webp" || payload.notification?.icon,
+    data: { url: payload.fcmOptions?.link || "/" },
+  };
 
-    const notificationTitle = payload.notification?.title || "Notification";
-    const notificationOptions = {
-      body: payload.notification?.body || "You have a new message",
-      tag: notificationTitle,
-      icon: payload.notification?.image || "/default-icon.png",
-      data: {
-        url: payload?.data?.openUrl || "/",
-      },
-    };
+  self.registration.showNotification(notificationTitle, notificationOptions);
+});
 
-    self.registration.showNotification(notificationTitle, notificationOptions);
-  });
-}
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const targetUrl = event.notification.data?.url || "/";
+
+  event.waitUntil(
+    clients
+      .matchAll({
+        type: "window",
+        includeUncontrolled: true,
+      })
+      .then((clientList) => {
+        for (const client of clientList) {
+          if (client.url.includes(targetUrl) && "focus" in client) {
+            return client.focus();
+          }
+        }
+        return clients.openWindow(targetUrl);
+      })
+  );
+});
