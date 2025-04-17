@@ -43,7 +43,7 @@ const UserListItem = (props: UserListItemProps) => {
         </div>
         <div className="w-32">
           <div className="text-xs text-gray-600 mb-2">
-            {moment(timestamp).format("ddd, h:m A")}
+            {moment(timestamp).format("ddd, h:mm A")}
           </div>
           <div className="flex flex-col justify-end items-end">
             {unreadCount > 0 && (
