@@ -3,8 +3,9 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import Bubble from "./Bubble";
 import MessageForm from "./MessageForm";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import NoChat from "./NoChat";
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+import ChatRoomPlaceHolder from "./ChatRoomPlaceHolder";
 
 interface Message {
   userId: string;
@@ -36,11 +37,15 @@ const ChatRoom = ({ isMobile }: { isMobile: boolean }) => {
   return (
     <>
       {BubbleMessage.length === 0 ? (
-        <NoChat />
+        <ChatRoomPlaceHolder roomMessage="No Messages Yet." />
       ) : (
         <div className="border-l">
           <div className="flex items-center border-b p-4">
-            {isMobile && <Link href="/chat/list">BUTTON</Link>}
+            {isMobile && (
+              <Link href="/chat/list">
+                <ArrowLeft />
+              </Link>
+            )}
             <Avatar className="flex items-center justify-center w-10 h-10">
               <AvatarImage src="/default-profile.png" />
               <AvatarFallback>CN</AvatarFallback>
