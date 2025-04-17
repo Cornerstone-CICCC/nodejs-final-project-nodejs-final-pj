@@ -2,7 +2,7 @@
 
 import { UserFormInputs, userSchema } from "@/schemas/userSchemas";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -20,12 +20,12 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import ImageUpload from "@/components/profile/ImageUpload";
 import { AlertCircle } from "lucide-react";
 import { useState } from "react";
+import { useUpdateUser } from "@/hooks/useUser";
+import { User } from "@/types/user";
 
 const ProfileEditForm = () => {
   const { user } = useUserStore();
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
-  const [showError, setShowError] = useState(false)
-  const [loading, setLoading] = useState(false)
 
   const form = useForm<UserFormInputs>({
     resolver: zodResolver(userSchema),
@@ -38,43 +38,34 @@ const ProfileEditForm = () => {
 
   // const userId = user?.id
 
-  const onSubmit = async (data: UserFormInputs) => {
-    console.log("Form submitted:", data);
-    console.log("Uploaded image:", uploadedImage);
-
-    setLoading(true)
-
-    // await new Promise((resolve) => setTimeout(resolve, 4000))
-
-    try {
-      const res = await fetch(`/app/api/users/123`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...data,
-          email: user?.email,
-          fileid: uploadedImage ? "" : user?.fileId
-        })
-      })
-
-      const result = await res.json()
-
-      if (!res.ok || !result.success) {
-        throw new Error(result.message || "error")
-      }
-
-    } catch (err) {
-      console.log(err, "failed editing")
-      setShowError(true)
-    } finally {
-      setLoading(false)
-    }
-  };
+  const { onSubmit, loading, showError, errorMessage } = useUpdateUser()
 
   const bioValue = form.watch("bio")
   const bioLength = bioValue?.length || 0
+  const nameValue = form.watch("name")
+  const nameLength = nameValue?.length || 0
+  const usernameValue = form.watch("userName")
+  const usernameLength = usernameValue?.length || 0
+
+  const onSave: SubmitHandler<UserFormInputs> = async (data) => {
+
+    try {
+      const { name, userName, bio } = data
+      const updatedUser: User = {
+        id: "123",
+        name,
+        userName,
+        email: "john@abc.com",
+        bio,
+        fileId: "456"
+      }
+      await onSubmit(updatedUser)
+      console.log(uploadedImage)
+
+    } catch (err) {
+      console.log(err)
+    }
+  }
 
   return (
     <div className="flex flex-col gap-10">
@@ -82,7 +73,7 @@ const ProfileEditForm = () => {
         <AlertCircle color="red" className="h-4 w-4" />
         <AlertTitle>Error</AlertTitle>
         <AlertDescription>
-          Failed to update your profile. Please try again later.
+          {errorMessage && <p>{errorMessage}</p>}
         </AlertDescription>
       </Alert>
 
@@ -91,7 +82,7 @@ const ProfileEditForm = () => {
       {loading && <div className="fixed top-0 left-0 w-screen h-screen bg-white/70 flex justify-center items-center"><p className="text-xl">Loading...</p></div>}
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <form onSubmit={form.handleSubmit(onSave)} className="space-y-8">
           <FormField
             control={form.control}
             name="name"
@@ -101,9 +92,12 @@ const ProfileEditForm = () => {
                 <FormControl>
                   <Input placeholder="Name" {...field} />
                 </FormControl>
-                <FormDescription>
-                  This is your public display name.
-                </FormDescription>
+                <div className="flex justify-between">
+                  <FormDescription>
+                    This is your public display name.
+                  </FormDescription>
+                  <p className="text-right text-gray-400">{nameLength}/30</p>
+                </div>
                 <FormMessage />
               </FormItem>
             )}
@@ -137,7 +131,10 @@ const ProfileEditForm = () => {
                 <FormControl>
                   <Input placeholder="Username" {...field} />
                 </FormControl>
-                <FormMessage />
+                <div className="flex justify-between">
+                  <FormMessage className="w-full"/>
+                  <p className="text-right w-full text-gray-400">{usernameLength}/30</p>
+                </div>
               </FormItem>
             )}
           />
