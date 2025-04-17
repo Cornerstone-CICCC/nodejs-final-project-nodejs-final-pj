@@ -1,13 +1,14 @@
 import { cn } from "@/lib/utils";
+import moment from "moment";
 
 const Bubble = ({
   direction,
   message,
-  time,
+  timestamp,
 }: {
   direction: string;
   message: string;
-  time: string;
+  timestamp: Date;
 }) => {
   return (
     <div
@@ -26,7 +27,9 @@ const Bubble = ({
       >
         <p>{message}</p>
       </div>
-      <span className="text-xs text-gray-500 my-2">{time}</span>
+      <span className="text-xs text-gray-500 my-2">
+        {moment(timestamp).format("h:m A")}
+      </span>
     </div>
   );
 };

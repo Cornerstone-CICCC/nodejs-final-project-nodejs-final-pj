@@ -23,7 +23,7 @@ const MessageForm = () => {
     console.log(values);
   }
   return (
-    <div className="p-4 bg-white absolute bottom-0 w-full">
+    <div className="p-4 bg-white border-t absolute bottom-0 w-full">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="flex">
           <FormField

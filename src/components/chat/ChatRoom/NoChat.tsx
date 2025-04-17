@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 
 const NoChat = () => {
   return (
-    <div className="grid place-items-center min-h-screen">
+    <div className="grid place-items-center md:h-[calc(100vh-57px)] border-l">
       <div className="text-center">
         <div
           className={cn(

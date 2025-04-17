@@ -16,7 +16,7 @@ const chatList: UserListItemProps[] = [
 const UserList = () => {
   return (
     <div>
-      <div className="h-dvh overflow-scroll">
+      <div className="h-[calc(100vh-57px)] overflow-scroll">
         {chatList.map((chat) => (
           <UserListItem key={chat.userId} {...chat} />
         ))}
