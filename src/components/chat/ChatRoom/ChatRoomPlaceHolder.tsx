@@ -17,7 +17,7 @@ const ChatRoomPlaceHolder = ({ roomMessage }: { roomMessage: string }) => {
         </div>
         <h3 className="mt-3 mb-3 font-extrabold text-2xl">{roomMessage}</h3>
         <p className="mb-5">
-          Start a conversation by clicking user name in the left side.
+          Start a conversation by clicking a user’s name on the left side.
         </p>
         <Button variant={"tertiary"} asChild>
           <Link href="/chat/list">Choose user 😉</Link>
