@@ -42,7 +42,7 @@ const ChatRoom = ({ isMobile }: { isMobile: boolean }) => {
         <div className="border-l">
           <div className="flex items-center border-b p-4">
             {isMobile && (
-              <Link href="/chat/list">
+              <Link href="/chat/list" className="mr-3">
                 <ArrowLeft />
               </Link>
             )}
