@@ -11,9 +11,17 @@ export async function PUT(
 
   try {
     await dbConnect();
-
+    
     const body = await req.json();
     const { name, userName, email, bio, fileId } = body;
+
+    const existingUser = await User.findOne({ userName })
+    if (existingUser && existingUser._id.toString() !== id) {
+      return NextResponse.json(
+        { success: false, message: "Username is already taken"},
+        { status: 400 }
+      )
+    }
 
     const updatedUser = await User.findByIdAndUpdate(
       id,
@@ -35,7 +43,7 @@ export async function PUT(
   } catch (error) {
     console.error(error);
     return NextResponse.json(
-      { success: false, message: error },
+      { success: false, message: String(error) },
       { status: 500 }
     );
   }
