@@ -14,7 +14,7 @@ export function useUpdateUser() {
     // await new Promise((resolve) => setTimeout(resolve, 4000))
 
     try {
-      const res = await fetch(`/api/users/680006162840ef48724a1d6d`, {
+      const res = await fetch(`/api/users/${data.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -23,7 +23,6 @@ export function useUpdateUser() {
           ...data,
         })
       })
-
       const result = await res.json()
 
       if (!res.ok || !result.success) {
