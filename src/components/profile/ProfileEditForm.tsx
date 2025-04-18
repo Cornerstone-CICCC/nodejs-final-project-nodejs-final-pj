@@ -36,7 +36,7 @@ const ProfileEditForm = () => {
     },
   });
 
-  // const userId = user?.id
+  const userId = user?.id
 
   const { onSubmit, loading, showError, errorMessage } = useUpdateUser()
 
@@ -49,15 +49,19 @@ const ProfileEditForm = () => {
 
   const onSave: SubmitHandler<UserFormInputs> = async (data) => {
 
+    if (!userId) {
+      throw new Error("User ID is not available")
+    }
+
     try {
       const { name, userName, bio } = data
       const updatedUser: User = {
-        id: "123",
+        id: userId,
         name,
         userName,
-        email: "john@abc.com",
+        email: user.email,
         bio,
-        fileId: "456"
+        fileId: user.fileId
       }
       await onSubmit(updatedUser)
       console.log(uploadedImage)

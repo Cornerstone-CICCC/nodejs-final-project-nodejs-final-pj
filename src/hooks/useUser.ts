@@ -1,7 +1,14 @@
 import { useState } from "react";
 import { User } from "@/types/user";
 
-export function useUpdateUser() {
+type useUpdateUserType = {
+  onSubmit: (data: User) => Promise<void>,
+  loading: boolean,
+  showError: boolean,
+  errorMessage: string,
+}
+
+export function useUpdateUser(): useUpdateUserType {
   const [loading, setLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState("")
   const [showError, setShowError] = useState(false)
