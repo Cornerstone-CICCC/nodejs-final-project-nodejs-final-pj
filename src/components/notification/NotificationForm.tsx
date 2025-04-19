@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useState } from "react";
+import { useEffect } from "react";
 import useSavePushToken from "@/hooks/useSavePushToken";
 import { requestNotificationPermission } from "@/lib/firebase/requestNotificationPermission";
 import { Button } from "@/components/ui/button";
@@ -22,65 +22,80 @@ import {
   notificationSchema,
 } from "@/schemas/notificationSchemas";
 import { Spinner } from "@/components/ui/spinner";
+import useNotificationSettings from "@/hooks/useNotificationSettings";
+import { sendNotificationAPI } from "@/lib/firebase/notifications";
 
 const NotificationForm = () => {
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const { saveToken, loading } = useSavePushToken();
+  const { saveToken } = useSavePushToken();
+  const { settings, loading, error, updateSettings } =
+    useNotificationSettings();
 
   const form = useForm<NotificationFormInputs>({
     resolver: zodResolver(notificationSchema),
     defaultValues: {
-      messages: true,
+      all: false,
+      messages: false,
     },
   });
 
+  useEffect(() => {
+    if (settings) {
+      const initialValues = {
+        all: settings?.notificationsEnabled || false,
+        messages: settings?.notificationTypes.messages || false,
+      };
+      form.reset(initialValues);
+    }
+  }, [settings, form]);
+
   const onSubmit: SubmitHandler<NotificationFormInputs> = async (data) => {
-    setErrorMessage(null);
-    console.log("Form data:", data);
-
     try {
-      const token = await requestNotificationPermission();
-
-      if (!token) {
-        setErrorMessage("Failed to enable notifications. Please try again.");
-        return;
+      if (!settings || !settings.id) {
+        throw new Error("Settings or ID is not available");
       }
 
-      const result = await saveToken(token);
+      const updatedSettings = {
+        ...settings,
+        notificationsEnabled: data.all,
+        notificationTypes: {
+          ...settings?.notificationTypes,
+          messages: data.messages,
+        },
+      };
 
-      if (!result.success) {
-        setErrorMessage(
-          "Failed to save notification settings. Please try again later."
-        );
-        return;
-      }
+      await updateSettings(updatedSettings);
     } catch (error) {
-      console.error("Unexpected error:", error);
-      setErrorMessage("An error occurred. Please try again later.");
+      console.error(error);
     }
   };
 
+  // Marked for deletion↓
   const onSend = async () => {
-    const content = "This is a test notification";
+    const token = await requestNotificationPermission();
+    if (!token) {
+      return;
+    }
+
+    const result = await saveToken(token);
+
+    if (!result.success) {
+      return;
+    }
 
     try {
-      const response = await fetch("http://localhost:3000/api/notifications", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          type: "sendNotification",
-          recipientId: "test",
-          title: "New Message",
-          body: content,
-        }),
-      });
+      const payload = {
+        type: "sendNotification",
+        recipientId: "12345",
+        title: "New Message",
+        body: "This is a test notification",
+      };
 
-      if (response.ok) {
+      const success = await sendNotificationAPI(payload);
+
+      if (success) {
         console.log("Notification sent successfully");
       } else {
-        console.error("Failed to send notification:", await response.text());
+        console.error("Failed to send notification.");
       }
     } catch (err) {
       console.error("Error sending notification:", err);
@@ -89,7 +104,7 @@ const NotificationForm = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center">
+      <div className="fixed inset-0 flex justify-center items-center">
         <Spinner size={40} />
       </div>
     );
@@ -97,11 +112,11 @@ const NotificationForm = () => {
 
   return (
     <div className="flex flex-col gap-10">
-      {errorMessage && (
+      {error && (
         <Alert>
           <AlertCircle color="red" className="h-4 w-4" />
           <AlertTitle>Error</AlertTitle>
-          <AlertDescription>{errorMessage}</AlertDescription>
+          <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
 
@@ -112,6 +127,23 @@ const NotificationForm = () => {
         >
           <div>
             <div className="space-y-4">
+              <FormField
+                control={form.control}
+                name="all"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center">
+                    <div className="space-y-0.5">
+                      <FormLabel>Pause all</FormLabel>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="messages"
@@ -134,13 +166,13 @@ const NotificationForm = () => {
               />
             </div>
           </div>
-          <Button className="w-full" type="submit" disabled={loading}>
+          <Button className="w-full" type="submit">
             Save
           </Button>
         </form>
       </Form>
 
-      {/* Test */}
+      {/* Marked for deletion */}
       <Button onClick={onSend}>Send Notification</Button>
     </div>
   );

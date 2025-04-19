@@ -3,17 +3,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { PushToken } from "@/lib/db/models/PushToken";
 import { sendNotification } from "@/lib/firebase/sendNotification";
 
+// Register token
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    // Register token
     if (body.type === "registerToken") {
       const { userId, token, device } = body;
 
       if (!userId || !token || !device) {
         return NextResponse.json(
-          { message: "Missing required fields" },
+          { success: false, message: "Missing required fields" },
           { status: 400 }
         );
       }
@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
         await newPushToken.save();
       }
 
-      return NextResponse.json({ message: "Token saved successfully" });
+      return NextResponse.json({ success: true });
     }
 
     // Send notification
@@ -95,7 +95,7 @@ export async function POST(req: NextRequest) {
 
       await sendNotification(title, notificationBody, validTokens);
 
-      return NextResponse.json({ success: true, message: "Notification sent" });
+      return NextResponse.json({ success: true });
     }
     return NextResponse.json(
       { success: false, message: "Invalid type" },

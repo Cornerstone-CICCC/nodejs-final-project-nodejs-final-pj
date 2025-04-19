@@ -3,6 +3,7 @@
 import { z } from "zod";
 
 export const notificationSchema = z.object({
+  all: z.boolean(),
   messages: z.boolean(),
 });
 

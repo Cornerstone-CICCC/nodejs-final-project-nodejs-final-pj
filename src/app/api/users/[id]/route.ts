@@ -7,7 +7,7 @@ export async function PUT(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const { id } = await params;
+  const id = (await params).id;
 
   try {
     await dbConnect();

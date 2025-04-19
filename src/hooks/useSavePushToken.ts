@@ -1,50 +1,50 @@
-// import useUserStore from "@/stores/useUserStore";
-import { useState } from "react";
-
-interface SaveTokenResponse {
-  success: boolean;
-  data?: unknown;
-  error?: string;
-}
+import useStore from "@/stores/useUserStore";
+import { useState, useCallback } from "react";
 
 const useSavePushToken = () => {
-  // const { user } = useUserStore();
-  const [loading, setLoading] = useState<boolean>(false);
+  const [tokenLoading, setTokenLoading] = useState<boolean>(false);
+  const [tokenError, setTokenError] = useState<string | null>(null);
+  const userId = useStore((state) => state.user?.id);
 
-  const saveToken = async (token: string): Promise<SaveTokenResponse> => {
-    setLoading(true);
+  const saveToken = useCallback(
+    async (token: string) => {
+      setTokenLoading(true);
+      setTokenError(null);
 
-    try {
-      // if (!user) {
-      //   setLoading(false);
-      //   return { success: false };
-      // }
+      try {
+        const response = await fetch("/api/notifications", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            type: "registerToken",
+            userId: userId || "12345",
+            token,
+            device: "web",
+          }),
+        });
 
-      const response = await fetch("/api/notifications", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ type: "registerToken", userId: "test", token, device: "web" }),
-      });
+        if (!response.ok) {
+          setTokenError("Failed to save token. Please try again.");
+          return;
+        }
 
-      if (!response.ok) {
-        console.log("Response from server:", response);
-        const errorMessage = `Error: ${response.statusText}`;
-        throw new Error(errorMessage);
+        const data = await response.json();
+        return data;
+      } catch (err) {
+        console.error(err);
+        setTokenError(
+          err instanceof Error ? err.message : "An unknown error occurred."
+        );
+      } finally {
+        setTokenLoading(false);
       }
+    },
+    [userId]
+  );
 
-      const data = await response.json();
-      setLoading(false);
-      return { success: true, data };
-    } catch (err) {
-      console.error("Error saving token:", err);
-      setLoading(false);
-      return { success: false };
-    }
-  };
-
-  return { saveToken, loading };
+  return { saveToken, tokenLoading, tokenError };
 };
 
 export default useSavePushToken;
