@@ -4,6 +4,7 @@ interface IUser extends Document {
   name: string;
   userName: string;
   email: string;
+  password: string;
   bio: string;
   fileId: string;
   createdAt: Date;
@@ -12,11 +13,12 @@ interface IUser extends Document {
 
 const userSchema: Schema<IUser> = new Schema(
   {
-    name: { type: String, required: true },
-    userName: { type: String, required: true, unique: true },
+    name: { type: String, default: "" },
+    userName: { type: String, unique: true, sparse: true },
     email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
     bio: { type: String, default: "" },
-    fileId: { type: String, required: true, unique: true },
+    fileId: { type: String, default: "" },
   },
   {
     timestamps: true,
@@ -25,6 +27,7 @@ const userSchema: Schema<IUser> = new Schema(
       transform: (_, ret) => {
         ret.id = ret._id.toString();
         delete ret._id;
+        delete ret.password; // Don't send the password to the client
         delete ret.createdAt;
         delete ret.updatedAt;
       },
