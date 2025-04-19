@@ -4,10 +4,11 @@ import bcrypt from 'bcryptjs';
 import dbConnect from './db/connect';
 import User from './db/models/User';
 
-// Get the JWT secret from .env
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || 'fallback_secret_key_please_change_in_production'
-);
+// Get the JWT secret from .env and enforce its presence
+if (!process.env.JWT_SECRET) {
+  throw new Error('Environment variable JWT_SECRET must be set to a secure value.');
+}
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
 export async function createSessionToken(userId: string) {
   const token = await new SignJWT({ userId })
