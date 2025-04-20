@@ -22,13 +22,16 @@ export async function POST(req: NextRequest) {
     await newUser.save();
     return NextResponse.json({ success: true, data: newUser }, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ success: false, message: error }, { status: 400 });
+    return NextResponse.json(
+      { success: false, message: error },
+      { status: 400 }
+    );
   }
 }
 
-export async function methodNotAllowed() {
-  return NextResponse.json(
-    { success: false, message: "Method not allowed" },
-    { status: 405 }
-  );
-}
+// export async function methodNotAllowed() {
+//   return NextResponse.json(
+//     { success: false, message: "Method not allowed" },
+//     { status: 405 }
+//   );
+// }

@@ -1,0 +1,7 @@
+{
+  "watch": ["ws-server.ts"],
+  "ext": "ts",
+  "execMap": {
+    "ts": "ts-node --project tsconfig.ws-server.json"
+  }
+}

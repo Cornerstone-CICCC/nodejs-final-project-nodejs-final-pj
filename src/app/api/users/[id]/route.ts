@@ -5,7 +5,7 @@ import User from "@/lib/db/models/User";
 // Update user
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const id = (await params).id;
 
@@ -27,7 +27,7 @@ export async function PUT(
         { status: 404 }
       );
     }
-    
+
     return NextResponse.json(
       { success: true, data: updatedUser },
       { status: 200 }
