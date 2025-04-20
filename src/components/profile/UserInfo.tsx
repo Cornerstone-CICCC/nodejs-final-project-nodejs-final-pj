@@ -17,7 +17,7 @@ const UserInfo = () => {
   };
 
   return (
-    <div className="bg-white p-20 rounded-3xl">
+    <div className="bg-white p-20 rounded-3xl max-w-md">
       <div className="flex flex-col items-center gap-2">
         {/* <img
           src={user.profilePicture || "/default-profile.png"}
