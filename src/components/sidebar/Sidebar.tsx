@@ -24,7 +24,7 @@ const Sidebar = () => {
           asChild
         >
           <Link
-            href="/profile/1"
+            href="/profile/edit"
             className={cn(
               "justify-start border-black rounded-none",
               checkPath("profile") && "border-b-2"
