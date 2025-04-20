@@ -24,7 +24,7 @@ messaging.onBackgroundMessage((payload) => {
     body:
       payload.notification?.body ||
       "You have a new message. Please check it out",
-    icon: "/assets/icon.webp" || payload.notification?.icon,
+      icon: payload.notification?.icon || "/assets/icon.webp",
     data: { url: payload.fcmOptions?.link || "/" },
   };
 

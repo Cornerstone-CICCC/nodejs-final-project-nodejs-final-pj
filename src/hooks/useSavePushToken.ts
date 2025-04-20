@@ -27,16 +27,15 @@ const useSavePushToken = () => {
 
         if (!response.ok) {
           setTokenError("Failed to save token. Please try again.");
-          return;
+          return { success: false };
         }
 
         const data = await response.json();
         return data;
       } catch (err) {
         console.error(err);
-        setTokenError(
-          err instanceof Error ? err.message : "An unknown error occurred."
-        );
+        setTokenError("An unknown error occurred.");
+        return { success: false };
       } finally {
         setTokenLoading(false);
       }
