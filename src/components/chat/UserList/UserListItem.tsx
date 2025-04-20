@@ -25,7 +25,7 @@ const UserListItem = (props: UserListItemProps) => {
       <div className="flex gap-4 w-full p-4 hover:cursor-pointer border-b-1 border-b-gray-200 hover:bg-gray-100 select-none">
         <div className="w-14 relative">
           <img
-            src={avatarUrl}
+            src={avatarUrl ? avatarUrl : "/default-profile.png"}
             alt=""
             className="min-w-14 h-14 object-cover rounded-full"
           />
@@ -43,7 +43,7 @@ const UserListItem = (props: UserListItemProps) => {
         </div>
         <div className="w-32">
           <div className="text-xs text-gray-600 mb-2">
-            {moment(timestamp).format("ddd, h:mm A")}
+            {timestamp && moment(timestamp).format("ddd, h:mm A")}
           </div>
           <div className="flex flex-col justify-end items-end">
             {unreadCount > 0 && (

@@ -16,6 +16,7 @@ export const messageSchema = new Schema<IMessage>(
     text: { type: String, required: true },
   },
   {
+    collection: "messages",
     timestamps: true,
     versionKey: false,
     toJSON: {
@@ -23,7 +24,6 @@ export const messageSchema = new Schema<IMessage>(
         ret.id = ret._id.toString();
         delete ret._id;
         delete ret.createdAt;
-        delete ret.updatedAt;
       },
     },
   }
