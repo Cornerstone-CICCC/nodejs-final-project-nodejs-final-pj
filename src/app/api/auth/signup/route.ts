@@ -44,24 +44,63 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error('Signup error:', error);
 
+    // ZodError handling
     if (error instanceof z.ZodError) {
       return NextResponse.json({
         success: false,
-        message: 'Validation error',
+        message: 'Please provide a valid email and password (minimum 8 characters)',
         errors: error.errors
       }, { status: 400 });
     }
 
-    if (error instanceof Error) {
+    // MongoDB error handling
+    if (error instanceof Error && 'code' in error && error.code === 11000) {
+      interface MongoDBError extends Error {
+        code: number;
+        keyValue?: Record<string, unknown>;
+      }
+
+      const keyValue = (error as MongoDBError).keyValue || {};
+
+      if ('email' in keyValue) {
+        return NextResponse.json({
+          success: false,
+          message: 'This email is already registered'
+        }, { status: 400 });
+      }
+
+      if ('fileId' in keyValue) {
+        return NextResponse.json({
+          success: false,
+          message: 'Account creation failed. Please try again later'
+        }, { status: 400 });
+      }
+
       return NextResponse.json({
         success: false,
-        message: error.message
+        message: 'Some information is already registered'
       }, { status: 400 });
     }
 
+    // Known error messages
+    if (error instanceof Error) {
+      if (error.message === 'Email already exists') {
+        return NextResponse.json({
+          success: false,
+          message: 'This email is already registered'
+        }, { status: 400 });
+      }
+
+      return NextResponse.json({
+        success: false,
+        message: 'Failed to create account. Please check your information'
+      }, { status: 400 });
+    }
+
+    // Unexpected errors
     return NextResponse.json({
       success: false,
-      message: 'Server error'
+      message: 'Server error occurred. Please try again later'
     }, { status: 500 });
   }
 }

@@ -34,7 +34,6 @@ export async function signUp(email: string, password: string) {
     email,
     password: hashedPassword,
     userName: `user_${Date.now()}`,
-    fileId: `temp_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
   });
 
   return user;

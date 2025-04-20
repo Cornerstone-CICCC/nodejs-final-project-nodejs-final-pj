@@ -13,7 +13,15 @@ const protectedPaths = ['/profile', '/chat'];
 const authUserDefaultPath = '/chat/list';
 
 // Paths that do not require authentication
-const noAuthUserPaths = ['/', '/login', '/signup', '/api'];
+const noAuthUserPaths = ['/', '/login', '/signup'];
+const apiPaths = ['/api'];
+
+const validPaths = [
+  ...protectedPaths,
+  ...noAuthUserPaths,
+  ...apiPaths,
+  '/404',
+];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -42,6 +50,19 @@ export async function middleware(request: NextRequest) {
 
   const isProtectedPath = protectedPaths.some(path => pathname.startsWith(path));
   const isNoAuthUserPath = noAuthUserPaths.some(path => pathname === path);
+
+  // Check if the path exists in our known routes
+  const isKnownPath = validPaths.some(path => pathname === path || pathname.startsWith(path + '/'));
+
+  if (!isKnownPath) {
+    if (isAuthenticated) {
+      // If authenticated, redirect to default path
+      return NextResponse.redirect(new URL(authUserDefaultPath, request.url));
+    } else {
+      // If not authenticated, redirect to root page
+      return NextResponse.redirect(new URL('/', request.url));
+    }
+  }
 
   // if authenticated, redirect to default path
   if (isAuthenticated && isNoAuthUserPath) {

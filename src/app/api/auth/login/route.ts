@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        message: "Invalid credentials",
+        message: "Your email or password is incorrect. Please try again.",
       },
       { status: 401 }
     );
