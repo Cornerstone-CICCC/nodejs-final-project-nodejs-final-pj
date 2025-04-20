@@ -49,11 +49,9 @@ export async function GET() {
       },
       {
         $project: {
-          password: 1,
           name: 1,
           userName: 1,
           email: 1,
-          bio: 1,
           fileId: 1,
           unreadCount: 1,
           lastMessage: 1,

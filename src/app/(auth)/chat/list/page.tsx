@@ -28,7 +28,7 @@ const List = () => {
               displayName: chat.userName,
               unreadCount: chat.unreadCount ?? 0,
               timestamp: chat.lastMessageTimestamp,
-              previewText: chat.lastMessageTimestamp,
+              previewText: chat.lastMessage,
               avatarUrl: chat.fileId,
               isActive: false,
             } as unknown as UserListItemProps;
