@@ -19,7 +19,7 @@ export default function Home() {
           className="text-lg h-12"
           asChild
         >
-          <Link href="/register">Sign Up</Link>
+          <Link href="/signup">Sign Up</Link>
         </Button>
       </div>
       <div className="w-full flex-grow bg-[url(/image-main.png)] bg-cover bg-center md:col-span-2 lg:col-span-3"></div>
