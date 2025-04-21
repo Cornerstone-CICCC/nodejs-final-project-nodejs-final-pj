@@ -2,7 +2,7 @@ import { useState } from "react";
 import { User } from "@/types/user";
 
 type useUpdateUserType = {
-  onSubmit: (data: User) => Promise<void>,
+  onSubmit: (data: User) => Promise<boolean>,
   loading: boolean,
   showError: boolean,
   errorMessage: string,
@@ -17,8 +17,6 @@ export function useUpdateUser(): useUpdateUserType {
     console.log("Form submitted:", data);
 
     setLoading(true)
-
-    // await new Promise((resolve) => setTimeout(resolve, 4000))
 
     try {
       const res = await fetch(`/api/users/${data.id}`, {
@@ -47,9 +45,13 @@ export function useUpdateUser(): useUpdateUserType {
         setShowError(false)
       }
 
+      return true
+
     } catch (err) {
       console.log(err, "failed editing")
       setShowError(true)
+      return false
+
     } finally {
       setLoading(false)
     }

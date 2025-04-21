@@ -22,19 +22,33 @@ import { AlertCircle } from "lucide-react";
 import { useState } from "react";
 import { useUpdateUser } from "@/hooks/useUser";
 import { User } from "@/types/user";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 const ProfileEditForm = () => {
-  const { user } = useUserStore();
+  const { user, setUser } = useUserStore();
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
+
+  const router = useRouter();
 
   const form = useForm<UserFormInputs>({
     resolver: zodResolver(userSchema),
     defaultValues: {
-      name: user?.name || "",
+      name: user?.name || "New user",
       userName: user?.userName || "",
-      bio: user?.bio || "",
+      bio: user?.bio || "Nice to meet you!",
     },
   });
+
+  useEffect(() => {
+    if (user) {
+      form.reset({
+        name: user.name || "New user",
+        userName: user.userName || "",
+        bio: user.bio || "Nice to meet you!",
+      });
+    }
+  }, [user, form]);
 
   const userId = user?.id
 
@@ -63,8 +77,13 @@ const ProfileEditForm = () => {
         bio,
         fileId: user.fileId
       }
-      await onSubmit(updatedUser)
+      const res = await onSubmit(updatedUser)
       console.log(uploadedImage)
+      
+      if (res) {
+        setUser(updatedUser)
+        router.push(`/profile/${user.id}`)
+      }
 
     } catch (err) {
       console.log(err)
