@@ -7,13 +7,20 @@ export interface NotificationSettings {
   };
 }
 
-export interface NotificationRequest {
+export interface NotificationPayload {
+  type: string;
   recipientId: string;
   title: string;
   body: string;
+  notificationType: string;
 }
 
-export interface NotificationResponse {
+export interface NotificationSettingsResponse {
   success: boolean;
-  message: string;
+  settings: {
+    notificationTypes: { [key: string]: boolean };
+    userId: string;
+    notificationsEnabled: boolean;
+    id: string;
+  };
 }
