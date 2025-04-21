@@ -1,4 +1,5 @@
 "use client";
+import { useEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Bubble from "./Bubble";
 import MessageForm from "./MessageForm";
@@ -6,37 +7,30 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import ChatRoomPlaceHolder from "./ChatRoomPlaceHolder";
-
-interface Message {
-  userId: string;
-  message: string;
-  timestamp: Date;
-}
+import useChatStore from "@/stores/useChatStore";
+import { ChatMessage } from "@/types/chat";
 
 const loggedInUserId = "testId";
 
-const BubbleMessage: Message[] = [
-  {
-    userId: "testId",
-    message: "Hellllllo",
-    timestamp: new Date(),
-  },
-  {
-    userId: "testId2",
-    message: "How is it going?",
-    timestamp: new Date(),
-  },
-  {
-    userId: "testId",
-    message: "Bye",
-    timestamp: new Date(),
-  },
-];
+interface ChatRoomProps {
+  isMobile: boolean;
+  messages: ChatMessage[];
+}
 
-const ChatRoom = ({ isMobile }: { isMobile: boolean }) => {
+const ChatRoom = ({ isMobile, messages }: ChatRoomProps) => {
+  const fetchMessages = useChatStore((state) => state.fetchMessages);
+
+  useEffect(() => {
+    fetchMessages();
+  }, []);
+
+  useEffect(() => {
+    console.log("messages", messages);
+  }, [messages]);
+
   return (
     <>
-      {BubbleMessage.length === 0 ? (
+      {!messages.length ? (
         <ChatRoomPlaceHolder roomMessage="No Messages Yet." />
       ) : (
         <div className="border-l">
@@ -58,12 +52,12 @@ const ChatRoom = ({ isMobile }: { isMobile: boolean }) => {
             </div>
           </div>
           <ScrollArea className="h-[calc(100vh-130px)] w-full p-4 bg-gray-100">
-            {BubbleMessage.map((msg) => (
+            {messages.map((msg) => (
               <Bubble
-                key={msg.userId} // need to unique
-                direction={msg.userId === loggedInUserId ? "right" : "left"}
-                message={msg.message}
-                timestamp={msg.timestamp}
+                key={msg._id} // need to unique
+                direction={msg.senderId === loggedInUserId ? "right" : "left"}
+                message={msg.text}
+                timestamp={msg.createdAt}
               />
             ))}
           </ScrollArea>

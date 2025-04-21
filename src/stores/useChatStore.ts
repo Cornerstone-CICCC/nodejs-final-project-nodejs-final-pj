@@ -7,29 +7,54 @@ import { persist } from "zustand/middleware";
 
 interface ChatState {
   chatList: UserListItem[];
-  // setUser: (users: User[]) => void;
   chats: Chat;
+  activeChatRecipientId: string | null;
+  setActiveChatRecipientId: (id: string) => void;
+  fetchMessages: () => Promise<void>;
   setChatList: (chats: Chat) => void;
   fetchChatListUsers: () => Promise<void>;
 }
 
 const useChatStore = create<ChatState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       chatList: [],
       chats: {},
-      // setUser: (chatList) => set({ chatList }),
+      activeChatRecipientId: null,
+      setActiveChatRecipientId: (id) => set({ activeChatRecipientId: id }),
       setChatList: (chats) => set({ chats }),
       fetchChatListUsers: async () => {
         const res = await fetch("/api/messages/chatList");
         const { data } = await res.json();
         set({ chatList: data });
-        console.log("Fetched chat list users:", data);
       },
-      fetchMessages: async (userId: string) => {
-        const res = await fetch(`/api/messages/${userId}`);
+      fetchMessages: async () => {
+        const activeChatRecipientId = get().activeChatRecipientId;
+        if (!activeChatRecipientId) return;
+        const skip = get().chats[activeChatRecipientId]?.messages.length || 0;
+        const limit = 10;
+        const res = await fetch(
+          `/api/messages/${
+            get().activeChatRecipientId
+          }?limit=${limit}&skip=${skip}`
+        );
         const { data } = await res.json();
-        set({ chats: data });
+
+        if (!data.length) return;
+
+        const messages = get().chats[activeChatRecipientId]?.messages || [];
+        const updatedMessages = [...messages, ...data];
+        const lastMessageTimestamp = data[data.length - 1].createdAt;
+
+        set({
+          chats: {
+            ...get().chats,
+            [activeChatRecipientId]: {
+              messages: updatedMessages,
+              lastMessageTimestamp: lastMessageTimestamp,
+            },
+          },
+        });
       },
     }),
     {

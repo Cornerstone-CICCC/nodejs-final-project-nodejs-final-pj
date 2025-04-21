@@ -25,6 +25,7 @@ const MessageForm = () => {
     socket.emit("send_message", {
       message: values.message,
     });
+    // form.reset();
   }
   return (
     <div className="p-4 bg-white border-t absolute bottom-0 w-full">

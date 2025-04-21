@@ -1,6 +1,7 @@
 export interface Chat {
   [key: string]: {
     messages: ChatMessage[];
+    lastMessageTimestamp?: Date;
   };
 }
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useParams } from "next/navigation";
 import ChatRoom from "@/components/chat/ChatRoom";
 import UserList from "@/components/chat/UserList";
 import useIsMobile from "@/hooks/useIsMobile";
@@ -8,6 +9,8 @@ import useChatStore from "@/stores/useChatStore";
 import { UserListItemProps } from "@/components/chat/UserList/UserListItem";
 
 const ChatDetail = () => {
+  const params = useParams();
+  const { userId: recipentId } = params;
   const isMobile = useIsMobile();
   const chats = useChatStore((state) => state);
 
@@ -15,8 +18,11 @@ const ChatDetail = () => {
     if (chats.chatList.length === 0) {
       chats.fetchChatListUsers();
     }
-    console.log({ list: chats.chatList });
-  }, [chats]);
+    if (recipentId) {
+      chats.setActiveChatRecipientId(recipentId as string);
+      chats.fetchMessages();
+    }
+  }, [recipentId, chats.chatList]);
 
   return (
     <div className="md:grid md:grid-cols-3">
@@ -38,7 +44,14 @@ const ChatDetail = () => {
         </div>
       )}
       <div className="md:col-span-2 relative">
-        <ChatRoom isMobile={isMobile} />
+        <ChatRoom
+          messages={
+            recipentId && chats.chats[recipentId as string]
+              ? chats.chats[recipentId as string].messages
+              : []
+          }
+          isMobile={isMobile}
+        />
       </div>
     </div>
   );

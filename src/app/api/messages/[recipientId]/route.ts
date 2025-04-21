@@ -1,19 +1,32 @@
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/db/connect";
 import messageModel from "@/lib/db/models/Message";
+import mongoose from "mongoose";
+import { cookies } from "next/headers";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ userId: string }> }
+  { params }: { params: Promise<{ recipientId: string }> }
 ) {
-  const userId = (await params).userId;
+  const recipientId = (await params).recipientId;
   const limit = Number(request.nextUrl.searchParams.get("limit")) || 10;
   const skip = Number(request.nextUrl.searchParams.get("skip")) || 0;
+
   try {
     await dbConnect();
+    const cookiesStore = await cookies();
+
+    if (!cookiesStore.get("user-id")?.value) {
+      return NextResponse.json(
+        { success: false, message: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+    const userId = cookiesStore.get("user-id")?.value;
     const messages = await messageModel
       .find({
-        recipientId: userId,
+        senderId: new mongoose.Types.ObjectId(userId),
+        recipientId: new mongoose.Types.ObjectId(recipientId),
       })
       .limit(limit)
       .skip(skip)
