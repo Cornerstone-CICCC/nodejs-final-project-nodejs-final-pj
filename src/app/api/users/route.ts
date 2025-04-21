@@ -29,6 +29,22 @@ export async function POST(req: NextRequest) {
   }
 }
 
+// Get Users
+export async function GET() {
+  await dbConnect();
+
+  try {
+    const users = await User.find();
+
+    return NextResponse.json({ success: true, data: users }, { status: 200 });
+  } catch (error) {
+    return NextResponse.json(
+      { success: false, message: error },
+      { status: 400 }
+    );
+  }
+}
+
 // export async function methodNotAllowed() {
 //   return NextResponse.json(
 //     { success: false, message: "Method not allowed" },

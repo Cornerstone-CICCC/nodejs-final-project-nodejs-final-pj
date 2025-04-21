@@ -27,7 +27,6 @@ const userSchema: Schema<IUser> = new Schema(
     toJSON: {
       transform: (_, ret) => {
         ret.id = ret._id.toString();
-        delete ret._id;
         delete ret.password; // Don't send the password to the client
         delete ret.createdAt;
         delete ret.updatedAt;

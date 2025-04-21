@@ -19,14 +19,23 @@ export async function GET(
       .skip(skip)
       .sort("-createdAt");
 
-    return NextResponse.json(messages, {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        data: messages,
+      },
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   } catch (err) {
     console.log(err);
-    return NextResponse.json("Oops! Something went wrong.", {
-      status: 500,
-    });
+    return NextResponse.json(
+      { success: false, error: "Internal Server Error" },
+      {
+        status: 500,
+      }
+    );
   }
 }

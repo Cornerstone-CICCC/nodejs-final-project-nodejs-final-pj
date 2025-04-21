@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { cookies } from 'next/headers';
+import { cookies } from "next/headers";
 import { z } from "zod";
 import { signIn, createSessionToken } from "@/lib/auth";
 
@@ -22,13 +22,23 @@ export async function POST(req: NextRequest) {
     // Store session token in cookies
     const cookiesStore = await cookies();
     cookiesStore.set({
-      name: 'session-token',
+      name: "session-token",
       value: token,
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 24 * 60 * 60 // 1 day
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 24 * 60 * 60, // 1 day
+    });
+
+    cookiesStore.set({
+      name: "user-id",
+      value: user.id.toString(),
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 24 * 60 * 60, // 1 day
     });
 
     // Return user data to the client for zustand state management
@@ -36,28 +46,33 @@ export async function POST(req: NextRequest) {
       success: true,
       user: {
         id: user.id.toString(),
-        name: user.name || '',
-        userName: user.userName || '',
+        name: user.name || "",
+        userName: user.userName || "",
         email: user.email,
-        bio: user.bio || '',
-        fileId: user.fileId || '',
-      }
+        bio: user.bio || "",
+        fileId: user.fileId || "",
+      },
     });
-
   } catch (error) {
-    console.error('Login error:', error);
+    console.error("Login error:", error);
 
     if (error instanceof z.ZodError) {
-      return NextResponse.json({
-        success: false,
-        message: 'Validation error',
-        errors: error.errors
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Validation error",
+          errors: error.errors,
+        },
+        { status: 400 }
+      );
     }
 
-    return NextResponse.json({
-      success: false,
-      message: 'Your email or password is incorrect. Please try again.',
-    }, { status: 401 });
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Your email or password is incorrect. Please try again.",
+      },
+      { status: 401 }
+    );
   }
 }

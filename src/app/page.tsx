@@ -1,9 +1,9 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import socket from "@/lib/socket";
-import { useEffect, useState } from "react";
 
 export default function Home() {
   const [isConnected, setIsConnected] = useState(false);
