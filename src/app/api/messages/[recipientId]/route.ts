@@ -11,6 +11,7 @@ export async function GET(
   const recipientId = (await params).recipientId;
   const limit = Number(request.nextUrl.searchParams.get("limit")) || 10;
   const skip = Number(request.nextUrl.searchParams.get("skip")) || 0;
+  const lastMessageTimestamp = request.nextUrl.searchParams.get("timestamp");
 
   try {
     await dbConnect();
@@ -23,14 +24,30 @@ export async function GET(
       );
     }
     const userId = cookiesStore.get("user-id")?.value;
+    const conditionals = lastMessageTimestamp
+      ? {
+          updatedAt: {
+            $gt: lastMessageTimestamp ? new Date(lastMessageTimestamp) : null,
+          },
+        }
+      : {};
     const messages = await messageModel
       .find({
-        senderId: new mongoose.Types.ObjectId(userId),
-        recipientId: new mongoose.Types.ObjectId(recipientId),
+        $or: [
+          {
+            senderId: new mongoose.Types.ObjectId(userId),
+            recipientId: new mongoose.Types.ObjectId(recipientId),
+          },
+          {
+            senderId: new mongoose.Types.ObjectId(recipientId),
+            recipientId: new mongoose.Types.ObjectId(userId),
+          },
+        ],
       })
+      .where({ ...conditionals })
       .limit(limit)
       .skip(skip)
-      .sort("-createdAt");
+      .sort({ createdAt: -1 });
 
     return NextResponse.json(
       {

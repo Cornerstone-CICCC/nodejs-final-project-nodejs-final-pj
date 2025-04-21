@@ -1,6 +1,6 @@
 "use client";
+"use strict";
 import { useEffect } from "react";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import Bubble from "./Bubble";
 import MessageForm from "./MessageForm";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -58,7 +58,10 @@ const ChatRoom = ({ isMobile, messages }: ChatRoomProps) => {
   return (
     <>
       {!messages.length ? (
-        <ChatRoomPlaceHolder roomMessage="No Messages Yet." />
+        <>
+          <ChatRoomPlaceHolder roomMessage="No Messages Yet." />
+          <MessageForm />
+        </>
       ) : (
         <div className="border-l">
           <div className="flex items-center border-b p-4">
@@ -73,14 +76,14 @@ const ChatRoom = ({ isMobile, messages }: ChatRoomProps) => {
             </Avatar>
             <div className="grid flex-1 text-left leading-tight ml-4">
               <span className="truncate font-medium mb-1 overflow-hidden text-ellipsis">
-                Sarah Packer
+                {/* {user?.userName} */}
               </span>
               <span className="truncate text-xs">Online</span>
             </div>
           </div>
-          <ScrollArea
+          <div
             ref={scrollAreaRef}
-            className="h-[calc(100vh-130px)] flex w-full p-4 bg-gray-100"
+            className="h-[calc(100vh-130px)] flex flex-col-reverse overflow-y-scroll pb-20 w-full p-4 bg-gray-100"
           >
             {messages.map((msg) => (
               <Bubble
@@ -90,9 +93,10 @@ const ChatRoom = ({ isMobile, messages }: ChatRoomProps) => {
                 read={msg.read}
                 message={msg.text}
                 timestamp={msg.updatedAt}
+                receipentId={msg.recipientId}
               />
             ))}
-          </ScrollArea>
+          </div>
           <MessageForm />
         </div>
       )}

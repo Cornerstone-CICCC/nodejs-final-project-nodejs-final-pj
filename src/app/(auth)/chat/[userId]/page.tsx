@@ -20,9 +20,10 @@ const ChatDetail = () => {
     }
     if (recipientId && recipientId !== chats.activeChatRecipientId) {
       chats.setActiveChatRecipientId(recipientId as string);
-      chats.fetchMessages();
+      // chats.fetchMessages();
     }
-  }, [recipientId, chats.chatList]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="md:grid md:grid-cols-3">
@@ -46,7 +47,7 @@ const ChatDetail = () => {
       <div className="md:col-span-2 relative">
         <ChatRoom
           messages={
-            recipientId && chats.chats[recipientId as string]
+            chats.chats[recipientId as string]
               ? chats.chats[recipientId as string].messages
               : []
           }

@@ -52,7 +52,7 @@ io.on("connection", async (socket) => {
         read: false,
       });
 
-      socket.emit("recieved_message", { message: newMessage });
+      io.emit("recieved_message", { message: newMessage });
     }
   );
 

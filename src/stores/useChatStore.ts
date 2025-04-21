@@ -1,6 +1,7 @@
 "use client";
 
 import { Chat, ChatMessage, UserListItem } from "@/types/chat";
+import useUserStore from "@/stores/useUserStore";
 // import { User } from "@/types/user";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
@@ -25,25 +26,34 @@ const useChatStore = create<ChatState>()(
       setActiveChatRecipientId: (id) => set({ activeChatRecipientId: id }),
       setChatList: (chats) => set({ chats }),
       pushMessageToActiveChat: async (message) => {
-        const activeChatRecipientId = get().activeChatRecipientId;
+        const user = useUserStore.getState().user;
+        // const activeChatRecipientId = get().activeChatRecipientId;
         // console.log("Pushing message to active chat", {
-        //   activeChatRecipientId,
         //   message,
+        //   user,
         // });
-        if (!activeChatRecipientId || !message) return;
 
-        const messages = get().chats[activeChatRecipientId]?.messages || [];
-        const updatedMessages = [...messages, message];
+        if (user?.id !== message.senderId && user?.id !== message.recipientId) {
+          return;
+        }
+        const chatroomId =
+          user?.id === message.senderId
+            ? message.recipientId
+            : message.senderId;
+        console.log(chatroomId);
+        console.log(message);
+        const messages = get().chats[chatroomId]?.messages || [];
+        const updatedMessages = [message, ...messages];
         const lastMessageTimestamp = message.createdAt;
-        set({
+        set((state) => ({
           chats: {
-            ...get().chats,
-            [activeChatRecipientId]: {
+            ...state.chats,
+            [chatroomId]: {
               messages: updatedMessages,
               lastMessageTimestamp: lastMessageTimestamp,
             },
           },
-        });
+        }));
       },
       fetchChatListUsers: async () => {
         const res = await fetch("/api/messages/chatList");
@@ -53,7 +63,16 @@ const useChatStore = create<ChatState>()(
       fetchMessages: async () => {
         const activeChatRecipientId = get().activeChatRecipientId;
         if (!activeChatRecipientId) return;
-        const skip = get().chats[activeChatRecipientId]?.messages.length || 0;
+        const currentChat = get().chats[activeChatRecipientId];
+
+        // set({
+        //   chats: {},
+        // });
+        // If there are no messages in the current chat,
+        if (currentChat && currentChat.messages.length) return;
+
+        const skip =
+          get().chats[activeChatRecipientId]?.messages.length - 1 || 0;
         const limit = 10;
         const res = await fetch(
           `/api/messages/${
