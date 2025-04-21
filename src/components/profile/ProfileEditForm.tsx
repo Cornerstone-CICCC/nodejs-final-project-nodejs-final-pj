@@ -23,23 +23,37 @@ import { useState } from "react";
 import { useUpdateUser } from "@/hooks/useUser";
 import { User } from "@/types/user";
 import { useFirebaseStorage } from "@/hooks/useFirebaseStorage";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 const ProfileEditForm = () => {
-  const { user } = useUserStore();
+  const { user, setUser } = useUserStore();
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const { onSubmit, loading, showError, errorMessage } = useUpdateUser();
   const { uploadImage, getImageUrl } = useFirebaseStorage();
 
+  const router = useRouter();
+
   const form = useForm<UserFormInputs>({
     resolver: zodResolver(userSchema),
     defaultValues: {
-      name: user?.name || "",
+      name: user?.name || "New user",
       userName: user?.userName || "",
-      bio: user?.bio || "",
+      bio: user?.bio || "Nice to meet you!",
     },
   });
 
-  const userId = user?.id;
+  useEffect(() => {
+    if (user) {
+      form.reset({
+        name: user.name || "New user",
+        userName: user.userName || "",
+        bio: user.bio || "Nice to meet you!",
+      });
+    }
+  }, [user, form]);
+
+  const userId = user?.id
 
   const bioValue = form.watch("bio");
   const bioLength = bioValue?.length || 0;
@@ -66,12 +80,17 @@ const ProfileEditForm = () => {
         bio,
         fileId: storagePath,
       };
-
-      await onSubmit(updatedUser);
-
+        
+      const res = await onSubmit(updatedUser)
+      console.log(uploadedImage)
+      
       const url = await getImageUrl(storagePath);
       console.log("Image URL:", url);
-
+      
+      if (res) {
+        setUser(updatedUser)
+        router.push(`/profile/${user.id}`)
+      }
     } catch (err) {
       console.log(err);
     }
