@@ -5,5 +5,4 @@ export interface User {
   email: string;
   bio: string;
   fileId?: string;
-  fileUrl?: string;
 }

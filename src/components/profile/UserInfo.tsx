@@ -22,7 +22,7 @@ const UserInfo = () => {
       <div className="flex flex-col items-center gap-2">
         <div className="relative w-24 h-24 rounded-full overflow-hidden">
           <Image
-            src={user.fileUrl || "/default-profile.png"}
+            src={user.fileId || "/default-profile.png"}
             alt="Profile Image"
             layout="fill"
             objectFit="cover"

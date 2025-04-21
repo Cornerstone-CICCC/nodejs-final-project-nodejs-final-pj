@@ -29,7 +29,7 @@ const ProfileEditForm = () => {
   const { user, setUser } = useUserStore();
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const { onSubmit, loading, showError, errorMessage } = useUpdateUser();
-  const { uploadImage, getImageUrl } = useFirebaseStorage();
+  const { uploadImage } = useFirebaseStorage();
 
   const router = useRouter();
 
@@ -58,10 +58,10 @@ const ProfileEditForm = () => {
 
     try {
       // Upload the image to Firebase Storage
-      let filePath = user.fileId;
+      let fileId = user.fileId;
 
       if (uploadedImage) {
-        filePath = await uploadImage(uploadedImage, "profile-images");
+        fileId = await uploadImage(uploadedImage, `profile-images/${user.id}`, user.fileId);
       }
 
       const { name, userName, bio } = data;
@@ -71,19 +71,13 @@ const ProfileEditForm = () => {
         userName,
         email: user.email,
         bio,
-        fileId: filePath,
+        fileId: fileId,
       };
 
       const res = await onSubmit(updatedUser);
 
       if (!res) {
         throw new Error("Failed to update user");
-      }
-
-      // Fetch image url from fcs
-      if (updatedUser.fileId) {
-        const url = await getImageUrl(updatedUser.fileId);
-        updatedUser.fileUrl = url;
       }
 
       setUser(updatedUser);
@@ -103,7 +97,7 @@ const ProfileEditForm = () => {
         </AlertDescription>
       </Alert>
 
-      <ImageUpload onFileSelect={setUploadedImage} image={user?.fileUrl} />
+      <ImageUpload onFileSelect={setUploadedImage} image={user?.fileId} />
 
       {loading && (
         <div className="fixed top-0 left-0 w-screen h-screen bg-white/70 flex justify-center items-center">

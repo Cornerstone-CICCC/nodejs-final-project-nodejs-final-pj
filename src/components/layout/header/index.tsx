@@ -79,7 +79,7 @@ const Header = () => {
                     >
                       <Avatar className="flex items-center justify-center">
                         {/* <AvatarImage src="https://github.com/shadcn.png" /> */}
-                        <AvatarImage src={user.fileUrl || "/default-profile.png"} />
+                        <AvatarImage src={user.fileId || "/default-profile.png"} />
                         <AvatarFallback>CN</AvatarFallback>
                       </Avatar>
                       <span className="sr-only">Profile</span>

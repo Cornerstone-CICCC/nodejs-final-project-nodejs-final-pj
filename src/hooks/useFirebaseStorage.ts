@@ -1,15 +1,16 @@
 import { useState } from "react";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 import { storage } from "@/lib/firebase/firebase";
 
 export const useFirebaseStorage = () => {
   const [imageLoading, setImageLoading] = useState<boolean>(false);
   const [imageError, setImageError] = useState<string | null>(null);
 
-  // Upload image to Firebase Storage
+  // Upload image to Firebase Storage and return the URL
   const uploadImage = async (
     file: File | null,
-    folderName: string
+    folderName: string,
+    oldImagePath?: string
   ): Promise<string> => {
     if (!file) {
       return "";
@@ -21,42 +22,37 @@ export const useFirebaseStorage = () => {
     setImageError(null);
 
     try {
-      const uploadedFile = await uploadBytes(fileRef, file);
+      // Delete old image if path is provided
+      if (oldImagePath) {
+        await deleteImage(oldImagePath);
+      }
 
-      return uploadedFile.metadata.fullPath;
-    } catch (err) {
-      console.error(err);
-      setImageError("An error occurred.");
-      throw err;
-    } finally {
-      setImageLoading(false);
-    }
-  };
+      // Upload new image
+      await uploadBytes(fileRef, file);
 
-  // Fetch image URL from Firebase Storage
-  const getImageUrl = async (path: string | undefined): Promise<string> => {
-    if (!path) {
-      return "";
-    }
-
-    const basePath = process.env.NEXT_PUBLIC_FIREBASE_FOLDER_PATH;
-    const fileRef = ref(storage, `${basePath}/${path}`);
-
-    setImageLoading(true);
-    setImageError(null);
-
-    try {
+      // Get and return the URL of the uploaded image
       const url = await getDownloadURL(fileRef);
-
       return url;
     } catch (err) {
       console.error(err);
-      setImageError("An error occurred.");
+      setImageError("An error occurred during upload.");
       throw err;
     } finally {
       setImageLoading(false);
     }
   };
 
-  return { uploadImage, getImageUrl, imageLoading, imageError };
+  // Delete image from Firebase Storage
+  const deleteImage = async (path: string): Promise<void> => {
+    const fileRef = ref(storage, path);
+
+    try {
+      await deleteObject(fileRef);
+    } catch (err) {
+      console.error(`Failed to delete image at ${path}:`, err);
+      throw err;
+    }
+  };
+
+  return { uploadImage, deleteImage, imageLoading, imageError };
 };
