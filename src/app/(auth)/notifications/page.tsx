@@ -3,17 +3,13 @@ import Sidebar from "@/components/sidebar/Sidebar";
 
 const NotificationsPage = () => {
   return (
-    <div className="flex flex-col gap-5 items-center min-h-screen bg-gray-100 p-20  relative">
-      <div className="w-full max-w-[358px] md:col-span-1 md:px-8 md:fixed md:left-0 md:top-0 md:pt-[165px]">
+    <div className="min-h-[calc(100vh-57px)] bg-gray-50 p-4 relative md:flex md:items-center">
+      <div className="md:px-8 md:fixed md:left-0 md:top-0 md:pt-[165px]">
         <Sidebar />
       </div>
-      <div>
-        <h1 className="text-2xl font-bold">Notifications</h1>
-        <div className="w-full max-w-lg">
-          <div className="md:col-span-2">
-            <NotificationForm />
-          </div>
-        </div>
+      <div className="w-full md:max-w-md md:m-auto md:mt-10">
+        <h1 className="text-2xl font-bold mb-6">Notifications</h1>
+        <NotificationForm />
       </div>
     </div>
   );
