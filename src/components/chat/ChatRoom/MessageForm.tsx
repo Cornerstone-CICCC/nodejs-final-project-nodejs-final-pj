@@ -23,6 +23,8 @@ const MessageForm = () => {
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
     socket.emit("send_message", {
+      // Add recipientId here
+      recipientId: "68057fdef4507020fe1edb23",
       message: values.message,
     });
   }

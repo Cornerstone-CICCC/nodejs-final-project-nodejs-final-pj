@@ -8,7 +8,7 @@ if (!process.env.JWT_SECRET) {
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
 // Paths that require authentication
-const protectedPaths = ['/profile', '/chat'];
+const protectedPaths = ['/profile', '/chat', '/notifications'];
 
 const authUserDefaultPath = '/chat/list';
 
