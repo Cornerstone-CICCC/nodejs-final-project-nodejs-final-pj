@@ -87,7 +87,7 @@ const Header = () => {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent sideOffset={6} align="end">
                     <DropdownMenuItem asChild>
-                      <Link href="/profile/1">
+                      <Link href={`/profile/${user.id}`}>
                         <UserRound />
                         <span>Profile</span>
                       </Link>
