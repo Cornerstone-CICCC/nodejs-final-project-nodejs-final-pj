@@ -11,7 +11,7 @@ import { useFirebaseStorage } from "@/hooks/useFirebaseStorage";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { setUser } = useUserStore();
+  const { setUser, updateUser } = useUserStore();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -36,13 +36,14 @@ export default function LoginPage() {
         throw new Error(data.message || "Failed to log in");
       }
 
-      // Fetch image url from fcs
-      const url = await getImageUrl(data.user.fileId);
-      data.user.fileId = url;
-      
       // Set the user in zustand store
       setUser(data.user);
-      console.log(data.user);
+
+      // Fetch image url from fcs
+      if (data.user.fileId) {
+        const url = await getImageUrl(data.user.fileId);
+        updateUser({ fileUrl: url });
+      }
 
       router.push("/chat/list");
     } catch (error) {

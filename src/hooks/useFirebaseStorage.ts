@@ -22,7 +22,6 @@ export const useFirebaseStorage = () => {
 
     try {
       const uploadedFile = await uploadBytes(fileRef, file);
-      console.log("Image uploaded:", uploadedFile);
 
       return uploadedFile.metadata.fullPath;
     } catch (err) {
@@ -35,7 +34,11 @@ export const useFirebaseStorage = () => {
   };
 
   // Fetch image URL from Firebase Storage
-  const getImageUrl = async (path: string): Promise<string> => {
+  const getImageUrl = async (path: string | undefined): Promise<string> => {
+    if (!path) {
+      return "";
+    }
+
     const basePath = process.env.NEXT_PUBLIC_FIREBASE_FOLDER_PATH;
     const fileRef = ref(storage, `${basePath}/${path}`);
 
@@ -44,7 +47,6 @@ export const useFirebaseStorage = () => {
 
     try {
       const url = await getDownloadURL(fileRef);
-      console.log("Image URL:", url);
 
       return url;
     } catch (err) {
