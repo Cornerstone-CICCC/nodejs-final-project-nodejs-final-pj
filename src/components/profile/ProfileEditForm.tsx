@@ -22,10 +22,13 @@ import { AlertCircle } from "lucide-react";
 import { useState } from "react";
 import { useUpdateUser } from "@/hooks/useUser";
 import { User } from "@/types/user";
+import { useFirebaseStorage } from "@/hooks/useFirebaseStorage";
 
 const ProfileEditForm = () => {
   const { user } = useUserStore();
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
+  const { onSubmit, loading, showError, errorMessage } = useUpdateUser();
+  const { uploadImage, getImageUrl } = useFirebaseStorage();
 
   const form = useForm<UserFormInputs>({
     resolver: zodResolver(userSchema),
@@ -36,40 +39,43 @@ const ProfileEditForm = () => {
     },
   });
 
-  const userId = user?.id
+  const userId = user?.id;
 
-  const { onSubmit, loading, showError, errorMessage } = useUpdateUser()
-
-  const bioValue = form.watch("bio")
-  const bioLength = bioValue?.length || 0
-  const nameValue = form.watch("name")
-  const nameLength = nameValue?.length || 0
-  const usernameValue = form.watch("userName")
-  const usernameLength = usernameValue?.length || 0
+  const bioValue = form.watch("bio");
+  const bioLength = bioValue?.length || 0;
+  const nameValue = form.watch("name");
+  const nameLength = nameValue?.length || 0;
+  const usernameValue = form.watch("userName");
+  const usernameLength = usernameValue?.length || 0;
 
   const onSave: SubmitHandler<UserFormInputs> = async (data) => {
-
     if (!userId) {
-      throw new Error("User ID is not available")
+      throw new Error("User ID is not available");
     }
 
     try {
-      const { name, userName, bio } = data
+      // Upload the image to Firebase Storage
+      const storagePath = await uploadImage(uploadedImage, "profile-images");
+
+      const { name, userName, bio } = data;
       const updatedUser: User = {
         id: userId,
         name,
         userName,
         email: user.email,
         bio,
-        fileId: user.fileId
-      }
-      await onSubmit(updatedUser)
-      console.log(uploadedImage)
+        fileId: storagePath,
+      };
+
+      await onSubmit(updatedUser);
+
+      const url = await getImageUrl(storagePath);
+      console.log("Image URL:", url);
 
     } catch (err) {
-      console.log(err)
+      console.log(err);
     }
-  }
+  };
 
   return (
     <div className="flex flex-col gap-10">
@@ -82,8 +88,12 @@ const ProfileEditForm = () => {
       </Alert>
 
       <ImageUpload onFileSelect={setUploadedImage} />
-      
-      {loading && <div className="fixed top-0 left-0 w-screen h-screen bg-white/70 flex justify-center items-center"><p className="text-xl">Loading...</p></div>}
+
+      {loading && (
+        <div className="fixed top-0 left-0 w-screen h-screen bg-white/70 flex justify-center items-center">
+          <p className="text-xl">Loading...</p>
+        </div>
+      )}
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSave)} className="space-y-8">
@@ -136,8 +146,10 @@ const ProfileEditForm = () => {
                   <Input placeholder="Username" {...field} />
                 </FormControl>
                 <div className="flex justify-between">
-                  <FormMessage className="w-full"/>
-                  <p className="text-right w-full text-gray-400">{usernameLength}/30</p>
+                  <FormMessage className="w-full" />
+                  <p className="text-right w-full text-gray-400">
+                    {usernameLength}/30
+                  </p>
                 </div>
               </FormItem>
             )}

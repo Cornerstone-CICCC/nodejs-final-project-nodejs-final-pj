@@ -7,6 +7,7 @@ import useUserStore from "@/stores/useUserStore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useFirebaseStorage } from "@/hooks/useFirebaseStorage";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -15,6 +16,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const { getImageUrl } = useFirebaseStorage();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,8 +36,13 @@ export default function LoginPage() {
         throw new Error(data.message || "Failed to log in");
       }
 
+      // Fetch image url from fcs
+      const url = await getImageUrl(data.user.fileId);
+      data.user.fileId = url;
+      
       // Set the user in zustand store
       setUser(data.user);
+      console.log(data.user);
 
       router.push("/chat/list");
     } catch (error) {
