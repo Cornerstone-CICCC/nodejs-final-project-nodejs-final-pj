@@ -1,6 +1,6 @@
 "use client";
 
-import { Chat, UserListItem } from "@/types/chat";
+import { Chat, ChatMessage, UserListItem } from "@/types/chat";
 // import { User } from "@/types/user";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
@@ -10,6 +10,7 @@ interface ChatState {
   chats: Chat;
   activeChatRecipientId: string | null;
   setActiveChatRecipientId: (id: string) => void;
+  pushMessageToActiveChat: (message: ChatMessage) => void;
   fetchMessages: () => Promise<void>;
   setChatList: (chats: Chat) => void;
   fetchChatListUsers: () => Promise<void>;
@@ -23,6 +24,27 @@ const useChatStore = create<ChatState>()(
       activeChatRecipientId: null,
       setActiveChatRecipientId: (id) => set({ activeChatRecipientId: id }),
       setChatList: (chats) => set({ chats }),
+      pushMessageToActiveChat: async (message) => {
+        const activeChatRecipientId = get().activeChatRecipientId;
+        // console.log("Pushing message to active chat", {
+        //   activeChatRecipientId,
+        //   message,
+        // });
+        if (!activeChatRecipientId || !message) return;
+
+        const messages = get().chats[activeChatRecipientId]?.messages || [];
+        const updatedMessages = [...messages, message];
+        const lastMessageTimestamp = message.createdAt;
+        set({
+          chats: {
+            ...get().chats,
+            [activeChatRecipientId]: {
+              messages: updatedMessages,
+              lastMessageTimestamp: lastMessageTimestamp,
+            },
+          },
+        });
+      },
       fetchChatListUsers: async () => {
         const res = await fetch("/api/messages/chatList");
         const { data } = await res.json();

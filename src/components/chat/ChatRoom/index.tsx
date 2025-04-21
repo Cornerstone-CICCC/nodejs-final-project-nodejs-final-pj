@@ -9,8 +9,9 @@ import { ArrowLeft } from "lucide-react";
 import ChatRoomPlaceHolder from "./ChatRoomPlaceHolder";
 import useChatStore from "@/stores/useChatStore";
 import { ChatMessage } from "@/types/chat";
-
-const loggedInUserId = "testId";
+import useUserStore from "@/stores/useUserStore";
+import socket from "@/lib/socket";
+import React from "react";
 
 interface ChatRoomProps {
   isMobile: boolean;
@@ -18,15 +19,41 @@ interface ChatRoomProps {
 }
 
 const ChatRoom = ({ isMobile, messages }: ChatRoomProps) => {
+  const scrollAreaRef = React.useRef<HTMLDivElement>(null);
+  const loggedInUserId = useUserStore((state) => state.user?.id);
+
   const fetchMessages = useChatStore((state) => state.fetchMessages);
+  const pushMessageToActiveChat = useChatStore(
+    (state) => state.pushMessageToActiveChat
+  );
 
   useEffect(() => {
-    fetchMessages();
+    const fn = async () => {
+      await fetchMessages();
+      scrollAreaRef.current?.scrollTo({
+        top: scrollAreaRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    };
+    fn();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    console.log("messages", messages);
-  }, [messages]);
+    socket.on("recieved_message", (data) => {
+      pushMessageToActiveChat(data.message);
+      console.log({ scrollAreaRef });
+      scrollAreaRef.current?.scrollTo({
+        top: scrollAreaRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    });
+
+    return () => {
+      socket.off("recieved_message");
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <>
@@ -51,13 +78,18 @@ const ChatRoom = ({ isMobile, messages }: ChatRoomProps) => {
               <span className="truncate text-xs">Online</span>
             </div>
           </div>
-          <ScrollArea className="h-[calc(100vh-130px)] w-full p-4 bg-gray-100">
+          <ScrollArea
+            ref={scrollAreaRef}
+            className="h-[calc(100vh-130px)] flex w-full p-4 bg-gray-100"
+          >
             {messages.map((msg) => (
               <Bubble
-                key={msg._id} // need to unique
+                key={msg.id}
+                messageId={msg.id}
                 direction={msg.senderId === loggedInUserId ? "right" : "left"}
+                read={msg.read}
                 message={msg.text}
-                timestamp={msg.createdAt}
+                timestamp={msg.updatedAt}
               />
             ))}
           </ScrollArea>

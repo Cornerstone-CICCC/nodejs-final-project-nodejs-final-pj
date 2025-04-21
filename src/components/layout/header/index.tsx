@@ -13,8 +13,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { AvatarFallback } from "@radix-ui/react-avatar";
-import { useRouter } from 'next/navigation';
-import useUserStore from '@/stores/useUserStore';
+import { useRouter } from "next/navigation";
+import useUserStore from "@/stores/useUserStore";
 
 const Header = () => {
   const path = usePathname();
@@ -30,22 +30,22 @@ const Header = () => {
 
   const handleLogout = async () => {
     try {
-      const res = await fetch('/api/auth/logout', { method: 'POST' });
+      const res = await fetch("/api/auth/logout", { method: "POST" });
 
       if (!res.ok) {
-        throw new Error('Logout failed');
+        throw new Error("Logout failed");
       }
 
       const data = await res.json();
-      console.log('Logout response:', data);
+      console.log("Logout response:", data);
 
       // Clear the user from zustand store
       setUser(null);
       router.refresh();
     } catch (error) {
-      console.error('Logout failed:', error);
+      console.error("Logout failed:", error);
     }
-  }
+  };
 
   return (
     <header className="flex justify-between items-center px-4 py-2 border-b h-14">
@@ -63,7 +63,7 @@ const Header = () => {
                   className="size-10 rounded-full"
                   asChild
                 >
-                  <Link href="/chat/1">
+                  <Link href="/chat/list">
                     <MessageCircle />
                     <span className="sr-only">Chat</span>
                   </Link>

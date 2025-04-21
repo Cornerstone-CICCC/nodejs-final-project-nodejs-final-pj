@@ -10,7 +10,7 @@ import { UserListItemProps } from "@/components/chat/UserList/UserListItem";
 
 const ChatDetail = () => {
   const params = useParams();
-  const { userId: recipentId } = params;
+  const { userId: recipientId } = params;
   const isMobile = useIsMobile();
   const chats = useChatStore((state) => state);
 
@@ -18,11 +18,11 @@ const ChatDetail = () => {
     if (chats.chatList.length === 0) {
       chats.fetchChatListUsers();
     }
-    if (recipentId) {
-      chats.setActiveChatRecipientId(recipentId as string);
+    if (recipientId && recipientId !== chats.activeChatRecipientId) {
+      chats.setActiveChatRecipientId(recipientId as string);
       chats.fetchMessages();
     }
-  }, [recipentId, chats.chatList]);
+  }, [recipientId, chats.chatList]);
 
   return (
     <div className="md:grid md:grid-cols-3">
@@ -46,8 +46,8 @@ const ChatDetail = () => {
       <div className="md:col-span-2 relative">
         <ChatRoom
           messages={
-            recipentId && chats.chats[recipentId as string]
-              ? chats.chats[recipentId as string].messages
+            recipientId && chats.chats[recipientId as string]
+              ? chats.chats[recipientId as string].messages
               : []
           }
           isMobile={isMobile}

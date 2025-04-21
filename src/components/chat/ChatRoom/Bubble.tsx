@@ -6,9 +6,11 @@ const Bubble = ({
   message,
   timestamp,
 }: {
+  messageId: string;
   direction: string;
   message: string;
   timestamp: Date;
+  read: boolean;
 }) => {
   return (
     <div
