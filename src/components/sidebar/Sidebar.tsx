@@ -20,35 +20,24 @@ const Sidebar = () => {
       <div className="inline-block">
         <Button
           variant={"link"}
-          className="flex-shrink-0 flex-grow-0 w-auto justify-start px-0"
+          className={cn(
+            "flex-shrink-0 flex-grow-0 w-auto justify-start px-0 border-black rounded-none hover:underline-offset-[12px]",
+            checkPath("profile") && "border-b-2 hover:no-underline"
+          )}
           asChild
         >
-          <Link
-            href="/profile/edit"
-            className={cn(
-              "justify-start border-black rounded-none",
-              checkPath("profile") && "border-b-2"
-            )}
-          >
-            Profile
-          </Link>
+          <Link href="/profile/edit">Profile</Link>
         </Button>
       </div>
       <div className="inline-block">
         <Button
           variant={"link"}
-          className="flex-shrink-0 flex-grow-0 w-auto justify-start px-0 mt-1.5"
-          asChild
+          className={cn(
+            "flex-shrink-0 flex-grow-0 w-auto justify-start px-0 border-black rounded-none mt-1.5 hover:underline-offset-[12px]",
+            checkPath("notifications") && "border-b-2 hover:no-underline"
+          )}
         >
-          <Link
-            href="/notifications"
-            className={cn(
-              "justify-start border-black rounded-none",
-              checkPath("notifications") && "border-b-2"
-            )}
-          >
-            Notifications
-          </Link>
+          <Link href="/notifications">Notifications</Link>
         </Button>
       </div>
     </div>

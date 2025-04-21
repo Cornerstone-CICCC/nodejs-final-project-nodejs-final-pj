@@ -13,8 +13,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { AvatarFallback } from "@radix-ui/react-avatar";
-import { useRouter } from 'next/navigation';
-import useUserStore from '@/stores/useUserStore';
+import { useRouter } from "next/navigation";
+import useUserStore from "@/stores/useUserStore";
 
 const Header = () => {
   const path = usePathname();
@@ -30,22 +30,22 @@ const Header = () => {
 
   const handleLogout = async () => {
     try {
-      const res = await fetch('/api/auth/logout', { method: 'POST' });
+      const res = await fetch("/api/auth/logout", { method: "POST" });
 
       if (!res.ok) {
-        throw new Error('Logout failed');
+        throw new Error("Logout failed");
       }
 
       const data = await res.json();
-      console.log('Logout response:', data);
+      console.log("Logout response:", data);
 
       // Clear the user from zustand store
       setUser(null);
       router.refresh();
     } catch (error) {
-      console.error('Logout failed:', error);
+      console.error("Logout failed:", error);
     }
-  }
+  };
 
   return (
     <header className="flex justify-between items-center px-4 py-2 border-b h-14">
@@ -79,7 +79,10 @@ const Header = () => {
                     >
                       <Avatar className="flex items-center justify-center">
                         {/* <AvatarImage src="https://github.com/shadcn.png" /> */}
-                        <AvatarImage src={user.fileId || "/default-profile.png"} />
+                        <AvatarImage
+                          src={user.fileId || "/default-profile.png"}
+                          className="object-cover"
+                        />
                         <AvatarFallback>CN</AvatarFallback>
                       </Avatar>
                       <span className="sr-only">Profile</span>
