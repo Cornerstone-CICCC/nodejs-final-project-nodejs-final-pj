@@ -1,22 +1,35 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, RefObject } from "react";
 
-export default function useIsVisible(ref: React.RefObject<HTMLElement | null>) {
-  const [isIntersecting, setIntersecting] = useState(false);
+export function useInScrollViewport(
+  ref: RefObject<HTMLDivElement | null>,
+  options: IntersectionObserverInit = {}
+): boolean {
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    // Create an IntersectionObserver to observe the ref's visibility
-    const observer = new IntersectionObserver(([entry]) =>
-      setIntersecting(entry.isIntersecting)
+    const element = ref.current;
+    const scrollParent = ref.current?.parentElement;
+    if (!element || !scrollParent) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry.isIntersecting);
+      },
+      {
+        root: scrollParent, // 👈 the scroll area container
+        threshold: options.threshold ?? 0.5,
+        rootMargin: options.rootMargin ?? "0px",
+      }
     );
 
-    // Start observing the element
-    observer.observe(ref.current as Element);
+    observer.observe(element);
 
-    // Cleanup the observer when the component unmounts or ref changes
     return () => {
+      observer.unobserve(element);
       observer.disconnect();
     };
   }, [ref]);
 
-  return isIntersecting;
+  return isVisible;
 }
+export default useInScrollViewport;

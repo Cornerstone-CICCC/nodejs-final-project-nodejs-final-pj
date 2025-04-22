@@ -15,6 +15,8 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { AvatarFallback } from "@radix-ui/react-avatar";
 import { useRouter } from "next/navigation";
 import useUserStore from "@/stores/useUserStore";
+import useChatStore from "@/stores/useChatStore";
+import socket from "@/lib/socket";
 
 const Header = () => {
   const path = usePathname();
@@ -39,8 +41,12 @@ const Header = () => {
       const data = await res.json();
       console.log("Logout response:", data);
 
+      socket.emit("logout", { userId: user?.id });
+
       // Clear the user from zustand store
       setUser(null);
+      useChatStore.setState({});
+
       router.refresh();
     } catch (error) {
       console.error("Logout failed:", error);

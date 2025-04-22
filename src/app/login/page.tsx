@@ -7,6 +7,7 @@ import useUserStore from "@/stores/useUserStore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import socket from "@/lib/socket";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -36,6 +37,8 @@ export default function LoginPage() {
 
       // Set the user in zustand store
       setUser(data.user);
+
+      socket.emit("logout", { userId: data.user.id });
 
       router.push("/chat/list");
     } catch (error) {

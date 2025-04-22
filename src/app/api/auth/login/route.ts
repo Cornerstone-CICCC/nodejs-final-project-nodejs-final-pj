@@ -41,6 +41,16 @@ export async function POST(req: NextRequest) {
       maxAge: 24 * 60 * 60, // 1 day
     });
 
+    // userModel.updateOne(
+    //   { _id: user.id },
+    //   { lastLogin: new Date() },
+    //   { new: true }
+    // ).then((updatedUser) => {
+    //   console.log("User last login updated:", updatedUser);
+    // }).catch((error) => {
+    //   console.error("Error updating user last login:", error);
+    // });
+
     // Return user data to the client for zustand state management
     return NextResponse.json({
       success: true,
