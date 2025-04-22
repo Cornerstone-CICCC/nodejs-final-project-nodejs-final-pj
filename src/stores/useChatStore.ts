@@ -13,6 +13,8 @@ interface ChatState {
   pushMessageToActiveChat: (message: ChatMessage) => void;
   decrementChatCount: () => void;
   markMessageRead: (messageId: string) => void;
+  markRecipientOnline: (userId: string) => void;
+  markRecipientOffline: (userId: string) => void;
   setLastMessagePreview: (
     message: ChatMessage,
     incrementChatCount: boolean
@@ -164,6 +166,34 @@ const useChatStore = create<ChatState>()(
             },
           },
         });
+      },
+      markRecipientOnline: (userId: string) => {
+        const updatedChatList = get().chatList.map((chatUser) => {
+          if (chatUser._id === userId) {
+            return {
+              ...chatUser,
+              isLoggedIn: true,
+            };
+          }
+          return chatUser;
+        });
+        set(() => ({
+          chatList: [...updatedChatList],
+        }));
+      },
+      markRecipientOffline: (userId: string) => {
+        const updatedChatList = get().chatList.map((chatUser) => {
+          if (chatUser._id === userId) {
+            return {
+              ...chatUser,
+              isLoggedIn: false,
+            };
+          }
+          return chatUser;
+        });
+        set(() => ({
+          chatList: [...updatedChatList],
+        }));
       },
     }),
     {

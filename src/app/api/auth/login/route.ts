@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
         bio: user.bio || "",
         fileId: user.fileId || "",
         lastLogin: user.lastLogin || null,
-        isLoggedIn: user.isLoggedIn || null,
+        isLoggedIn: true,
       },
     });
   } catch (error) {

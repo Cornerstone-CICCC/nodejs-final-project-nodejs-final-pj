@@ -95,7 +95,9 @@ const ChatRoom = ({ isMobile, messages, user }: ChatRoomProps) => {
               <span className="truncate font-medium mb-1 overflow-hidden text-ellipsis">
                 {user?.userName ? user.userName : user?.name}
               </span>
-              <span className="truncate text-xs">Online</span>
+              <span className="truncate text-xs">
+                {user?.isLoggedIn ? "Online" : ""}
+              </span>
             </div>
           </div>
           <div
