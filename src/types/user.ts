@@ -4,5 +4,5 @@ export interface User {
   userName: string;
   email: string;
   bio: string;
-  fileId: string;
+  fileId?: string;
 }

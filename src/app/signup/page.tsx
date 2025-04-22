@@ -6,8 +6,6 @@ import Link from "next/link";
 import useUserStore from "@/stores/useUserStore";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import useSavePushToken from "@/hooks/useSavePushToken";
-import { requestNotificationPermission } from "@/lib/firebase/requestNotificationPermission";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -16,7 +14,6 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const { saveToken, tokenLoading } = useSavePushToken();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,20 +35,6 @@ export default function SignupPage() {
 
       // After successful signup, set the user in zustand store
       setUser(data.user);
-
-      // Save FCM token
-      const token = await requestNotificationPermission();
-      if (!token) {
-        setError("Something went wrong. Please try again later.");
-        return;
-      }
-
-      const result = await saveToken(token, data.user.id);
-
-      if (!result.success) {
-        setError("Something went wrong. Please try again later.");
-        return;
-      }
 
       // Redirect to chat list page
       router.push("/chat/list");
@@ -93,7 +76,7 @@ export default function SignupPage() {
                 className="w-full px-3 py-2 border rounded-md"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                disabled={loading || tokenLoading}
+                disabled={loading}
                 placeholder="Enter your email"
               />
             </div>
@@ -110,7 +93,7 @@ export default function SignupPage() {
                 className="w-full px-3 py-2 border rounded-md"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                disabled={loading || tokenLoading}
+                disabled={loading}
                 placeholder="Create a password"
               />
               <p className="text-xs text-muted-foreground">
@@ -120,10 +103,9 @@ export default function SignupPage() {
 
             <Button className="w-full bg-[#9AB48E] hover:bg-[#8AA37D] text-white">
               Sign up
-              {loading ||
-                (tokenLoading && (
-                  <span className="ml-2 spinner-border animate-spin"></span>
-                ))}
+              {loading && (
+                <span className="ml-2 spinner-border animate-spin"></span>
+              )}
             </Button>
 
             <div className="relative">

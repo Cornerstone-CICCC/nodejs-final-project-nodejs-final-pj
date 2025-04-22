@@ -1,10 +1,9 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { UserRound } from "lucide-react";
+import Image from "next/image";
 
 interface ImageUploadProps {
   className?: string;
@@ -13,12 +12,11 @@ interface ImageUploadProps {
 }
 
 const ImageUpload = ({ className, image, onFileSelect }: ImageUploadProps) => {
-  const [preview, setPreview] = useState<string | undefined>(
-    image || undefined
-  );
+  const defaultImage = "/default-profile.png";
+  const [preview, setPreview] = useState<string>(image || defaultImage);
 
   useEffect(() => {
-    setPreview(image || undefined);
+    setPreview(image || defaultImage);
   }, [image]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -27,7 +25,7 @@ const ImageUpload = ({ className, image, onFileSelect }: ImageUploadProps) => {
       setPreview(URL.createObjectURL(file));
       onFileSelect(file);
     } else {
-      setPreview(image || undefined);
+      setPreview(image || defaultImage);
       onFileSelect(null);
     }
   };
@@ -36,17 +34,13 @@ const ImageUpload = ({ className, image, onFileSelect }: ImageUploadProps) => {
     <div className={cn("flex flex-col gap-2", className)}>
       <label className="text-sm font-medium">Photo</label>
       <div className="flex items-center gap-4">
-        <div
-          className={cn(
-            "relative w-32 h-32 rounded-full overflow-hidden border-2 transition-colors"
-          )}
-        >
-          <Avatar className="w-full h-full">
-            <AvatarImage src={preview} />
-            <AvatarFallback className="bg-muted">
-              <UserRound className="w-8 h-8 text-muted-foreground" />
-            </AvatarFallback>
-          </Avatar>
+        <div className="relative w-32 h-32 rounded-full overflow-hidden border-2 transition-colors">
+          <Image
+            src={preview}
+            alt="Profile Image"
+            layout="fill"
+            objectFit="cover"
+          />
         </div>
         <Button onClick={() => document.getElementById("imageInput")?.click()}>
           Change

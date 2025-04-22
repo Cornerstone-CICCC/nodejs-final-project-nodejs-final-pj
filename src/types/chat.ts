@@ -1,11 +1,12 @@
 export interface Chat {
   [key: string]: {
     messages: ChatMessage[];
+    lastMessageTimestamp?: Date;
   };
 }
 
 export interface ChatMessage {
-  _id: string;
+  id: string;
   senderId: string;
   recipientId: string;
   read: boolean;

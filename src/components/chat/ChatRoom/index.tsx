@@ -1,43 +1,67 @@
 "use client";
-import { ScrollArea } from "@/components/ui/scroll-area";
+"use strict";
+import { useEffect } from "react";
 import Bubble from "./Bubble";
 import MessageForm from "./MessageForm";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import ChatRoomPlaceHolder from "./ChatRoomPlaceHolder";
+import useChatStore from "@/stores/useChatStore";
+import { ChatMessage } from "@/types/chat";
+import useUserStore from "@/stores/useUserStore";
+import socket from "@/lib/socket";
+import React from "react";
 
-interface Message {
-  userId: string;
-  message: string;
-  timestamp: Date;
+interface ChatRoomProps {
+  isMobile: boolean;
+  messages: ChatMessage[];
 }
 
-const loggedInUserId = "testId";
+const ChatRoom = ({ isMobile, messages }: ChatRoomProps) => {
+  const scrollAreaRef = React.useRef<HTMLDivElement>(null);
+  const loggedInUserId = useUserStore((state) => state.user?.id);
 
-const BubbleMessage: Message[] = [
-  {
-    userId: "testId",
-    message: "Hellllllo",
-    timestamp: new Date(),
-  },
-  {
-    userId: "testId2",
-    message: "How is it going?",
-    timestamp: new Date(),
-  },
-  {
-    userId: "testId",
-    message: "Bye",
-    timestamp: new Date(),
-  },
-];
+  const fetchMessages = useChatStore((state) => state.fetchMessages);
+  const pushMessageToActiveChat = useChatStore(
+    (state) => state.pushMessageToActiveChat
+  );
 
-const ChatRoom = ({ isMobile }: { isMobile: boolean }) => {
+  useEffect(() => {
+    const fn = async () => {
+      await fetchMessages();
+      scrollAreaRef.current?.scrollTo({
+        top: scrollAreaRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    };
+    fn();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    socket.on("recieved_message", (data) => {
+      pushMessageToActiveChat(data.message);
+      console.log({ scrollAreaRef });
+      scrollAreaRef.current?.scrollTo({
+        top: scrollAreaRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    });
+
+    return () => {
+      socket.off("recieved_message");
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <>
-      {BubbleMessage.length === 0 ? (
-        <ChatRoomPlaceHolder roomMessage="No Messages Yet." />
+      {!messages.length ? (
+        <>
+          <ChatRoomPlaceHolder roomMessage="No Messages Yet." />
+          <MessageForm />
+        </>
       ) : (
         <div className="border-l">
           <div className="flex items-center border-b p-4">
@@ -52,21 +76,27 @@ const ChatRoom = ({ isMobile }: { isMobile: boolean }) => {
             </Avatar>
             <div className="grid flex-1 text-left leading-tight ml-4">
               <span className="truncate font-medium mb-1 overflow-hidden text-ellipsis">
-                Sarah Packer
+                {/* {user?.userName} */}
               </span>
               <span className="truncate text-xs">Online</span>
             </div>
           </div>
-          <ScrollArea className="h-[calc(100vh-130px)] w-full p-4 bg-gray-100">
-            {BubbleMessage.map((msg) => (
+          <div
+            ref={scrollAreaRef}
+            className="h-[calc(100vh-130px)] flex flex-col-reverse overflow-y-scroll pb-20 w-full p-4 bg-gray-100"
+          >
+            {messages.map((msg) => (
               <Bubble
-                key={msg.userId} // need to unique
-                direction={msg.userId === loggedInUserId ? "right" : "left"}
-                message={msg.message}
-                timestamp={msg.timestamp}
+                key={msg.id}
+                messageId={msg.id}
+                direction={msg.senderId === loggedInUserId ? "right" : "left"}
+                read={msg.read}
+                message={msg.text}
+                timestamp={msg.updatedAt}
+                receipentId={msg.recipientId}
               />
             ))}
-          </ScrollArea>
+          </div>
           <MessageForm />
         </div>
       )}

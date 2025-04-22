@@ -1,7 +1,6 @@
 import { MessageSquare } from "lucide-react";
-import { Button, buttonVariants } from "../../ui/button";
+import { buttonVariants } from "../../ui/button";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
 
 const ChatRoomPlaceHolder = ({ roomMessage }: { roomMessage: string }) => {
   return (
@@ -16,12 +15,10 @@ const ChatRoomPlaceHolder = ({ roomMessage }: { roomMessage: string }) => {
           <MessageSquare size={64} />
         </div>
         <h3 className="mt-3 mb-3 font-extrabold text-2xl">{roomMessage}</h3>
-        <p className="mb-5">
-          Start a conversation by clicking a user’s name on the left side.
-        </p>
-        <Button variant={"tertiary"} asChild>
+        <p className="mb-5">Start a conversation by sending a message.</p>
+        {/* <Button variant={"tertiary"} asChild>
           <Link href="/chat/list">Choose user 😉</Link>
-        </Button>
+        </Button> */}
       </div>
     </div>
   );

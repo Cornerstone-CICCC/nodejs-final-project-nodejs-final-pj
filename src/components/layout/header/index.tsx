@@ -63,7 +63,7 @@ const Header = () => {
                   className="size-10 rounded-full"
                   asChild
                 >
-                  <Link href="/chat/1">
+                  <Link href="/chat/list">
                     <MessageCircle />
                     <span className="sr-only">Chat</span>
                   </Link>
@@ -80,7 +80,7 @@ const Header = () => {
                       <Avatar className="flex items-center justify-center">
                         {/* <AvatarImage src="https://github.com/shadcn.png" /> */}
                         <AvatarImage
-                          src="/default-profile.png"
+                          src={user.fileId || "/default-profile.png"}
                           className="object-cover"
                         />
                         <AvatarFallback>CN</AvatarFallback>
