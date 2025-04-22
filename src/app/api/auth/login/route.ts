@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { z } from "zod";
 import { signIn, createSessionToken } from "@/lib/auth";
+import userModel from "@/lib/db/models/User";
+import mongoose from "mongoose";
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -41,15 +43,17 @@ export async function POST(req: NextRequest) {
       maxAge: 24 * 60 * 60, // 1 day
     });
 
-    // userModel.updateOne(
-    //   { _id: user.id },
-    //   { lastLogin: new Date() },
-    //   { new: true }
-    // ).then((updatedUser) => {
-    //   console.log("User last login updated:", updatedUser);
-    // }).catch((error) => {
-    //   console.error("Error updating user last login:", error);
-    // });
+    userModel
+      .updateOne(
+        { _id: new mongoose.Types.ObjectId(user.id) },
+        { lastLogin: new Date(), isLoggedIn: true }
+      )
+      .then((updatedUser) => {
+        console.log("User last login updated:", updatedUser);
+      })
+      .catch((error) => {
+        console.error("Error updating user last login:", error);
+      });
 
     // Return user data to the client for zustand state management
     return NextResponse.json({
@@ -61,6 +65,8 @@ export async function POST(req: NextRequest) {
         email: user.email,
         bio: user.bio || "",
         fileId: user.fileId || "",
+        lastLogin: user.lastLogin || null,
+        isLoggedIn: user.isLoggedIn || null,
       },
     });
   } catch (error) {

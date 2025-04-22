@@ -8,6 +8,8 @@ interface IUser extends Document {
   password: string;
   bio: string;
   fileId: string;
+  lastLogin: Date | null;
+  isLoggedIn: boolean | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -20,6 +22,8 @@ const userSchema: Schema<IUser> = new Schema(
     password: { type: String, required: true },
     bio: { type: String, default: "" },
     fileId: { type: String, default: "" },
+    lastLogin: { type: Date, default: null },
+    isLoggedIn: { type: Boolean, default: false },
   },
   {
     timestamps: true,
