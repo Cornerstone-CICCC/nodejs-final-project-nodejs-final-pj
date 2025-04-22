@@ -59,6 +59,7 @@ const ChatRoom = ({ isMobile, messages, user }: ChatRoomProps) => {
       setLastMessagePreview(data.message, increamentCount);
 
       if (increamentCount) return;
+
       scrollAreaRef.current?.scrollTo({
         top: scrollAreaRef.current.scrollHeight,
         behavior: "smooth",

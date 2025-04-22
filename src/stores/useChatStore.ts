@@ -77,13 +77,17 @@ const useChatStore = create<ChatState>()(
             chatUser._id === message.recipientId ||
             chatUser._id === message.senderId
           ) {
+            let chatCount =
+              chatUser.unreadCount && chatUser._id !== user?.id
+                ? chatUser.unreadCount + 1
+                : 1;
+            if (message.senderId === user?.id) {
+              chatCount = 0;
+            }
+
             return {
               ...chatUser,
-              unreadCount: incrementChatCount
-                ? chatUser.unreadCount && chatUser._id !== user?.id
-                  ? chatUser.unreadCount + 1
-                  : 1
-                : chatUser.unreadCount,
+              unreadCount: incrementChatCount ? chatCount : 0,
               lastMessage: message.text,
               lastMessageTimestamp: message.updatedAt,
             };
