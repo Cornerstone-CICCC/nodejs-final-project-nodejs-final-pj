@@ -24,6 +24,7 @@ import { useUpdateUser } from "@/hooks/useUser";
 import { User } from "@/types/user";
 import { useFirebaseStorage } from "@/hooks/useFirebaseStorage";
 import { useRouter } from "next/navigation";
+import { Spinner } from "../ui/spinner";
 
 const ProfileEditForm = () => {
   const { user, setUser } = useUserStore();
@@ -97,14 +98,15 @@ const ProfileEditForm = () => {
         </AlertDescription>
       </Alert>
 
-      <ImageUpload onFileSelect={setUploadedImage} image={user?.fileId} />
+      <ImageUpload onFileSelect={setUploadedImage} />
 
-      {loading && (
+      {
+        loading &&
         <div className="fixed top-0 left-0 w-screen h-screen bg-white/70 flex justify-center items-center">
-          <p className="text-xl">Loading...</p>
+          <Spinner size={32} className="text-blue-500" />
         </div>
-      )}
-
+      }
+      
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSave)} className="space-y-8">
           <FormField
