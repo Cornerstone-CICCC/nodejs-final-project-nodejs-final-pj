@@ -46,19 +46,19 @@ const ChatRoom = ({ isMobile, messages, user }: ChatRoomProps) => {
   }, []);
 
   useEffect(() => {
-    socket.on("recieved_message", (data: { message: ChatMessage }) => {
+    socket.on("received_message", (data: { message: ChatMessage }) => {
       pushMessageToActiveChat(data.message);
-      let increamentCount = false;
+      let incrementCount = false;
       if (
         activeChatRecipientId &&
         data.message.recipientId !== activeChatRecipientId &&
         data.message.senderId !== user?._id
       ) {
-        increamentCount = true;
+        incrementCount = true;
       }
-      setLastMessagePreview(data.message, increamentCount);
+      setLastMessagePreview(data.message, incrementCount);
 
-      if (increamentCount) return;
+      if (incrementCount) return;
 
       scrollAreaRef.current?.scrollTo({
         top: scrollAreaRef.current.scrollHeight,
@@ -67,7 +67,7 @@ const ChatRoom = ({ isMobile, messages, user }: ChatRoomProps) => {
     });
 
     return () => {
-      socket.off("recieved_message");
+      socket.off("received_message");
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

@@ -76,7 +76,7 @@ io.on("connection", async (socket) => {
         console.error("Error sending notification:", err);
       }
 
-      io.emit("recieved_message", { message: newMessage });
+      io.emit("received_message", { message: newMessage });
     }
   );
 
@@ -101,7 +101,7 @@ io.on("connection", async (socket) => {
     userModel
       .updateOne(
         { _id: new mongoose.Types.ObjectId(userId) },
-        { lastLogin: new Date(), isLoggedIn: true }
+        { lastLogin: new Date(), isLoggedIn: false }
       )
       .then((updatedUser) => {
         console.log("User last login updated:", updatedUser);
