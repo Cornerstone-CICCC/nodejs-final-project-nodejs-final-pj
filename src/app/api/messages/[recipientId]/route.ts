@@ -9,8 +9,8 @@ export async function GET(
   { params }: { params: Promise<{ recipientId: string }> }
 ) {
   const recipientId = (await params).recipientId;
-  const limit = Number(request.nextUrl.searchParams.get("limit")) || 10;
-  const skip = Number(request.nextUrl.searchParams.get("skip")) || 0;
+  const limit = 100;
+  const skip = 0;
   const lastMessageTimestamp = request.nextUrl.searchParams.get("timestamp");
 
   try {

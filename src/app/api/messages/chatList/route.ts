@@ -19,12 +19,48 @@ export async function GET() {
     const userId = cookiesStore.get("user-id")?.value;
 
     const users = await User.aggregate([
-      { $match: { _id: { $ne: new mongoose.Types.ObjectId(userId) } } },
+      {
+        $match: {
+          _id: { $ne: new mongoose.Types.ObjectId(userId) },
+        },
+      },
       {
         $lookup: {
           from: "messages",
-          localField: "_id",
-          foreignField: "recipientId",
+          let: { otherUserId: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $or: [
+                    {
+                      $and: [
+                        { $eq: ["$senderId", "$$otherUserId"] },
+                        {
+                          $eq: [
+                            "$recipientId",
+                            new mongoose.Types.ObjectId(userId),
+                          ],
+                        },
+                      ],
+                    },
+                    {
+                      $and: [
+                        {
+                          $eq: [
+                            "$senderId",
+                            new mongoose.Types.ObjectId(userId),
+                          ],
+                        },
+                        { $eq: ["$recipientId", "$$otherUserId"] },
+                      ],
+                    },
+                  ],
+                },
+              },
+            },
+            { $sort: { createdAt: -1 } },
+          ],
           as: "receivedMessages",
         },
       },
@@ -35,7 +71,17 @@ export async function GET() {
               $filter: {
                 input: "$receivedMessages",
                 as: "msg",
-                cond: { $eq: ["$$msg.read", false] },
+                cond: {
+                  $and: [
+                    { $eq: ["$$msg.read", false] },
+                    {
+                      $eq: [
+                        "$$msg.recipientId",
+                        new mongoose.Types.ObjectId(userId),
+                      ],
+                    },
+                  ],
+                },
               },
             },
           },
@@ -43,7 +89,7 @@ export async function GET() {
             $max: "$receivedMessages.createdAt",
           },
           lastMessage: {
-            $max: "$receivedMessages.text",
+            $first: "$receivedMessages.text",
           },
         },
       },
@@ -60,7 +106,7 @@ export async function GET() {
           updatedAt: 1,
         },
       },
-      { $sort: { createdAt: -1 } },
+      { $sort: { lastMessageTimestamp: -1 } },
     ]);
 
     return NextResponse.json({ success: true, data: users }, { status: 200 });
