@@ -1,6 +1,7 @@
 import { getToken, messaging } from "./firebase";
+import { saveFcmToken } from "./saveFcmToken";
 
-export const requestNotificationPermission = async () => {
+export const requestNotificationPermission = async (userId: string) => {
   try {
     const permission = await Notification.requestPermission();
 
@@ -15,7 +16,7 @@ export const requestNotificationPermission = async () => {
 
     if (!registration) {
       console.warn("Service Worker registration failed.");
-      return null;
+      return;
     }
 
     const token = await getToken(messaging, {
@@ -25,11 +26,17 @@ export const requestNotificationPermission = async () => {
 
     if (!token) {
       console.warn("Failed to retrieve FCM token.");
-      return null;
+      return;
     }
-    return token;
+
+    // Save the token to the db
+    const result = await saveFcmToken(token, userId);
+    if (!result) {
+      console.warn("Failed to save FCM token.");
+      return;
+    }
   } catch (error) {
     console.error("Error requesting permission:", error);
-    return null;
+    return;
   }
 };

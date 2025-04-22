@@ -1,4 +1,8 @@
 {
+  "extends": "./tsconfig.json",
+  "ts-node": {
+    "files": true
+  },
   "compilerOptions": {
     "target": "es2020",
     "module": "commonjs",
@@ -7,5 +11,5 @@
     "moduleResolution": "node",
     "outDir": "dist"
   },
-  "include": ["server.ts"]
+  "include": ["server.ts", "./global.d.ts", "./**/*.ts"]
 }
