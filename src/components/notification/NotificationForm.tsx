@@ -3,8 +3,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useEffect } from "react";
-import useSavePushToken from "@/hooks/useSavePushToken";
-import { requestNotificationPermission } from "@/lib/firebase/requestNotificationPermission";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -23,10 +21,8 @@ import {
 } from "@/schemas/notificationSchemas";
 import { Spinner } from "@/components/ui/spinner";
 import useNotificationSettings from "@/hooks/useNotificationSettings";
-import { sendNotificationAPI } from "@/lib/firebase/notifications";
 
 const NotificationForm = () => {
-  const { saveToken } = useSavePushToken();
   const { settings, loading, error, updateSettings } =
     useNotificationSettings();
 
@@ -66,39 +62,6 @@ const NotificationForm = () => {
       await updateSettings(updatedSettings);
     } catch (error) {
       console.error(error);
-    }
-  };
-
-  // Marked for deletion↓
-  const onSend = async () => {
-    const token = await requestNotificationPermission();
-    if (!token) {
-      return;
-    }
-
-    const result = await saveToken(token);
-
-    if (!result.success) {
-      return;
-    }
-
-    try {
-      const payload = {
-        type: "sendNotification",
-        recipientId: "12345",
-        title: "New Message",
-        body: "This is a test notification",
-      };
-
-      const success = await sendNotificationAPI(payload);
-
-      if (success) {
-        console.log("Notification sent successfully");
-      } else {
-        console.error("Failed to send notification.");
-      }
-    } catch (err) {
-      console.error("Error sending notification:", err);
     }
   };
 
@@ -171,9 +134,6 @@ const NotificationForm = () => {
           </Button>
         </form>
       </Form>
-
-      {/* Marked for deletion */}
-      <Button onClick={onSend}>Send Notification</Button>
     </div>
   );
 };

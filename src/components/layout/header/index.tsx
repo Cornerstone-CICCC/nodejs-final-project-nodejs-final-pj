@@ -79,7 +79,10 @@ const Header = () => {
                     >
                       <Avatar className="flex items-center justify-center">
                         {/* <AvatarImage src="https://github.com/shadcn.png" /> */}
-                        <AvatarImage src="/default-profile.png" />
+                        <AvatarImage
+                          src={user.fileId || "/default-profile.png"}
+                          className="object-cover"
+                        />
                         <AvatarFallback>CN</AvatarFallback>
                       </Avatar>
                       <span className="sr-only">Profile</span>
@@ -87,7 +90,7 @@ const Header = () => {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent sideOffset={6} align="end">
                     <DropdownMenuItem asChild>
-                      <Link href="/profile/1">
+                      <Link href={`/profile/${user.id}`}>
                         <UserRound />
                         <span>Profile</span>
                       </Link>

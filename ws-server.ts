@@ -9,6 +9,7 @@ dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
 
 import messageModel from "./src/lib/db/models/Message";
 import dbConnect from "./src/lib/db/connect";
+import { sendNotificationAPI } from "./src/lib/firebase/notifications";
 
 const app = express();
 const httpServer = createServer(app);
@@ -51,6 +52,27 @@ io.on("connection", async (socket) => {
         text: data.message,
         read: false,
       });
+
+      // Send notification
+      try {
+        const payload = {
+          type: "sendNotification",
+          recipientId: data.recipientId,
+          title: "New Message",
+          body: data.message,
+          notificationType: "messages",
+        };
+
+        const success = await sendNotificationAPI(payload);
+
+        if (success) {
+          console.log("Notification sent successfully");
+        } else {
+          console.error("Failed to send notification.");
+        }
+      } catch (err) {
+        console.error("Error sending notification:", err);
+      }
 
       io.emit("recieved_message", { message: newMessage });
     }
