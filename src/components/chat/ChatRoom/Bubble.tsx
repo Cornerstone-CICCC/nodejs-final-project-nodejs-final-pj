@@ -3,6 +3,7 @@ import moment from "moment";
 import useIsVisible from "@/hooks/useIsVisible";
 import { cn } from "@/lib/utils";
 import useUserStore from "@/stores/useUserStore";
+import useChatStore from "@/stores/useChatStore";
 
 const Bubble = ({
   direction,
@@ -22,6 +23,11 @@ const Bubble = ({
   const ref = React.createRef<HTMLDivElement | null>();
   const isVisible = useIsVisible(ref);
   const loggedInUserId = useUserStore((state) => state.user?.id);
+  const chatstore = useChatStore((state) => state);
+
+  useEffect(() => {
+    console.log(chatstore);
+  }, []);
 
   useEffect(() => {
     if (isVisible) {
@@ -35,8 +41,8 @@ const Bubble = ({
           body: JSON.stringify({ id: messageId }),
         })
           .then((res) => res.json())
-          .then((data) => {
-            console.log("Message marked as read", data);
+          .then(() => {
+            // update message count in chat store
           })
           .catch((err) => {
             console.error("Error marking message as read", err);

@@ -22,10 +22,12 @@ interface ChatRoomProps {
 const ChatRoom = ({ isMobile, messages, user }: ChatRoomProps) => {
   const scrollAreaRef = React.useRef<HTMLDivElement>(null);
   const loggedInUserId = useUserStore((state) => state.user?.id);
-
   const fetchMessages = useChatStore((state) => state.fetchMessages);
   const pushMessageToActiveChat = useChatStore(
     (state) => state.pushMessageToActiveChat
+  );
+  const setLastMessagePreview = useChatStore(
+    (state) => state.setLastMessagePreview
   );
 
   useEffect(() => {
@@ -43,7 +45,8 @@ const ChatRoom = ({ isMobile, messages, user }: ChatRoomProps) => {
   useEffect(() => {
     socket.on("recieved_message", (data) => {
       pushMessageToActiveChat(data.message);
-      console.log({ scrollAreaRef });
+      setLastMessagePreview(data.message);
+      console.log({ data });
       scrollAreaRef.current?.scrollTo({
         top: scrollAreaRef.current.scrollHeight,
         behavior: "smooth",

@@ -12,6 +12,9 @@ interface ChatState {
   activeChatRecipientId: string | null;
   setActiveChatRecipientId: (id: string) => void;
   pushMessageToActiveChat: (message: ChatMessage) => void;
+  decrementChatCount: () => void;
+  incrementChatCount: () => void;
+  setLastMessagePreview: (message: ChatMessage) => void;
   fetchMessages: () => Promise<void>;
   setChatList: (chats: Chat) => void;
   fetchChatListUsers: () => Promise<void>;
@@ -25,13 +28,28 @@ const useChatStore = create<ChatState>()(
       activeChatRecipientId: null,
       setActiveChatRecipientId: (id) => set({ activeChatRecipientId: id }),
       setChatList: (chats) => set({ chats }),
+      decrementChatCount: () => {},
+      incrementChatCount: () => {},
+      setLastMessagePreview: (message) => {
+        const updatedChatList = get().chatList.map((chatUser) => {
+          if (
+            chatUser._id === message.recipientId ||
+            chatUser._id === message.senderId
+          ) {
+            return {
+              ...chatUser,
+              lastMessage: message.text,
+              lastMessageTimestamp: message.createdAt,
+            };
+          }
+          return chatUser;
+        });
+        set(() => ({
+          chatList: [...updatedChatList],
+        }));
+      },
       pushMessageToActiveChat: async (message) => {
         const user = useUserStore.getState().user;
-        // const activeChatRecipientId = get().activeChatRecipientId;
-        // console.log("Pushing message to active chat", {
-        //   message,
-        //   user,
-        // });
 
         if (user?.id !== message.senderId && user?.id !== message.recipientId) {
           return;
