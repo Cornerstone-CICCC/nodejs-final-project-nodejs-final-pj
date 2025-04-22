@@ -1,6 +1,7 @@
 import React from "react";
 import moment from "moment";
 import Link from "next/link";
+import useChatStore from "@/stores/useChatStore";
 
 export interface UserListItemProps {
   userId: string;
@@ -20,11 +21,20 @@ const UserListItem = (props: UserListItemProps) => {
     previewText,
     avatarUrl,
     isActive,
+    userId,
   } = props;
+  const activeChatRecipientId = useChatStore(
+    (state) => state.activeChatRecipientId
+  );
+
   return (
     <div>
       <Link href={`/chat/${props.userId}`}>
-        <div className="flex gap-4 w-full p-4 hover:cursor-pointer border-b-1 border-b-gray-200 hover:bg-gray-100 select-none">
+        <div
+          className={`flex gap-4 w-full p-4 hover:cursor-pointer border-b-1 ${
+            userId === activeChatRecipientId && "bg-gray-200"
+          } border-b-gray-200 hover:bg-gray-100 select-none`}
+        >
           <div className="w-14 relative">
             <img
               src={avatarUrl ? avatarUrl : "/default-profile.png"}
