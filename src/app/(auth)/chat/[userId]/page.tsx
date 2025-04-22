@@ -51,6 +51,7 @@ const ChatDetail = () => {
               ? chats.chats[recipientId as string].messages
               : []
           }
+          user={chats.chatList.find((chat) => chat._id === recipientId)}
           isMobile={isMobile}
         />
       </div>

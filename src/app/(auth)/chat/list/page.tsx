@@ -15,7 +15,6 @@ const List = () => {
     if (chats.chatList.length === 0) {
       chats.fetchChatListUsers();
     }
-    console.log({ list: chats.chatList });
   }, [chats]);
 
   return (
@@ -25,7 +24,7 @@ const List = () => {
           users={chats.chatList.map((chat) => {
             return {
               userId: chat._id,
-              displayName: chat.userName,
+              displayName: chat.name ? chat.name : chat.userName,
               unreadCount: chat.unreadCount ?? 0,
               timestamp: chat.lastMessageTimestamp,
               previewText: chat.lastMessage,

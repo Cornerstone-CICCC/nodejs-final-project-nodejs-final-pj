@@ -8,7 +8,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import ChatRoomPlaceHolder from "./ChatRoomPlaceHolder";
 import useChatStore from "@/stores/useChatStore";
-import { ChatMessage } from "@/types/chat";
+import { ChatMessage, UserListItem } from "@/types/chat";
 import useUserStore from "@/stores/useUserStore";
 import socket from "@/lib/socket";
 import React from "react";
@@ -16,9 +16,10 @@ import React from "react";
 interface ChatRoomProps {
   isMobile: boolean;
   messages: ChatMessage[];
+  user?: UserListItem;
 }
 
-const ChatRoom = ({ isMobile, messages }: ChatRoomProps) => {
+const ChatRoom = ({ isMobile, messages, user }: ChatRoomProps) => {
   const scrollAreaRef = React.useRef<HTMLDivElement>(null);
   const loggedInUserId = useUserStore((state) => state.user?.id);
 
@@ -76,7 +77,7 @@ const ChatRoom = ({ isMobile, messages }: ChatRoomProps) => {
             </Avatar>
             <div className="grid flex-1 text-left leading-tight ml-4">
               <span className="truncate font-medium mb-1 overflow-hidden text-ellipsis">
-                {/* {user?.userName} */}
+                {user?.userName ? user.userName : user?.name}
               </span>
               <span className="truncate text-xs">Online</span>
             </div>
