@@ -20,7 +20,6 @@ const ChatDetail = () => {
     }
     if (recipientId && recipientId !== chats.activeChatRecipientId) {
       chats.setActiveChatRecipientId(recipientId as string);
-      // chats.fetchMessages();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -38,7 +37,7 @@ const ChatDetail = () => {
                 timestamp: chat.lastMessageTimestamp,
                 previewText: chat.lastMessage,
                 avatarUrl: chat.fileId,
-                isActive: false,
+                isActive: chat.isLoggedIn,
               } as unknown as UserListItemProps;
             })}
           />
@@ -51,6 +50,7 @@ const ChatDetail = () => {
               ? chats.chats[recipientId as string].messages
               : []
           }
+          user={chats.chatList.find((chat) => chat._id === recipientId)}
           isMobile={isMobile}
         />
       </div>

@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import useUserStore from "@/stores/useUserStore";
+import socket from "@/lib/socket";
 
 interface LoginCredentials {
   email: string;
@@ -34,6 +35,8 @@ export function useLogin() {
 
       // Set the user in zustand store
       setUser(responseData.user);
+
+      socket.emit("logout", { userId: responseData.user.id });
 
       router.push("/chat/list");
       return true;

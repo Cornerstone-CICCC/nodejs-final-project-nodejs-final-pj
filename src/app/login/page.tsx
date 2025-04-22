@@ -24,7 +24,7 @@ const LoginPage = () => {
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: "",
-      password: ""
+      password: "",
     },
   });
 
@@ -116,11 +116,7 @@ const LoginPage = () => {
               </div>
             </div>
 
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full border-2"
-            >
+            <Button type="button" variant="outline" className="w-full border-2">
               <img
                 src="https://www.google.com/favicon.ico"
                 alt="Google"
@@ -140,6 +136,6 @@ const LoginPage = () => {
       </div>
     </div>
   );
-}
+};
 
 export default LoginPage;

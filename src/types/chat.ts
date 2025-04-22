@@ -25,6 +25,7 @@ export interface UserListItem {
   unreadCount: number;
   lastMessageTimestamp: Date;
   lastMessage: string;
+  isLoggedIn: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

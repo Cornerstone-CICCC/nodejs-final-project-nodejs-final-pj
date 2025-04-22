@@ -102,6 +102,7 @@ export async function GET() {
           unreadCount: 1,
           lastMessage: 1,
           lastMessageTimestamp: 1,
+          isLoggedIn: 1,
           createdAt: 1,
           updatedAt: 1,
         },

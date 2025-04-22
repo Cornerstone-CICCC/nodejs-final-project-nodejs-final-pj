@@ -8,7 +8,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import ChatRoomPlaceHolder from "./ChatRoomPlaceHolder";
 import useChatStore from "@/stores/useChatStore";
-import { ChatMessage } from "@/types/chat";
+import { ChatMessage, UserListItem } from "@/types/chat";
 import useUserStore from "@/stores/useUserStore";
 import socket from "@/lib/socket";
 import React from "react";
@@ -16,15 +16,21 @@ import React from "react";
 interface ChatRoomProps {
   isMobile: boolean;
   messages: ChatMessage[];
+  user?: UserListItem;
 }
 
-const ChatRoom = ({ isMobile, messages }: ChatRoomProps) => {
+const ChatRoom = ({ isMobile, messages, user }: ChatRoomProps) => {
   const scrollAreaRef = React.useRef<HTMLDivElement>(null);
   const loggedInUserId = useUserStore((state) => state.user?.id);
-
+  const activeChatRecipientId = useChatStore(
+    (state) => state.activeChatRecipientId
+  );
   const fetchMessages = useChatStore((state) => state.fetchMessages);
   const pushMessageToActiveChat = useChatStore(
     (state) => state.pushMessageToActiveChat
+  );
+  const setLastMessagePreview = useChatStore(
+    (state) => state.setLastMessagePreview
   );
 
   useEffect(() => {
@@ -40,9 +46,20 @@ const ChatRoom = ({ isMobile, messages }: ChatRoomProps) => {
   }, []);
 
   useEffect(() => {
-    socket.on("recieved_message", (data) => {
+    socket.on("received_message", (data: { message: ChatMessage }) => {
       pushMessageToActiveChat(data.message);
-      console.log({ scrollAreaRef });
+      let incrementCount = false;
+      if (
+        activeChatRecipientId &&
+        data.message.recipientId !== activeChatRecipientId &&
+        data.message.senderId !== user?._id
+      ) {
+        incrementCount = true;
+      }
+      setLastMessagePreview(data.message, incrementCount);
+
+      if (incrementCount) return;
+
       scrollAreaRef.current?.scrollTo({
         top: scrollAreaRef.current.scrollHeight,
         behavior: "smooth",
@@ -50,7 +67,7 @@ const ChatRoom = ({ isMobile, messages }: ChatRoomProps) => {
     });
 
     return () => {
-      socket.off("recieved_message");
+      socket.off("received_message");
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -76,9 +93,11 @@ const ChatRoom = ({ isMobile, messages }: ChatRoomProps) => {
             </Avatar>
             <div className="grid flex-1 text-left leading-tight ml-4">
               <span className="truncate font-medium mb-1 overflow-hidden text-ellipsis">
-                {/* {user?.userName} */}
+                {user?.userName ? user.userName : user?.name}
               </span>
-              <span className="truncate text-xs">Online</span>
+              <span className="truncate text-xs">
+                {user?.isLoggedIn ? "Online" : ""}
+              </span>
             </div>
           </div>
           <div
@@ -87,7 +106,7 @@ const ChatRoom = ({ isMobile, messages }: ChatRoomProps) => {
           >
             {messages.map((msg) => (
               <Bubble
-                key={msg.id}
+                key={msg.id + crypto.randomUUID()}
                 messageId={msg.id}
                 direction={msg.senderId === loggedInUserId ? "right" : "left"}
                 read={msg.read}

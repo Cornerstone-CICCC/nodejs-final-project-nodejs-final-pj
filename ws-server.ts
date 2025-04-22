@@ -4,9 +4,11 @@ import { createServer } from "http";
 import cors from "cors";
 import { Server } from "socket.io";
 import dotenv from "dotenv";
+import mongoose from "mongoose";
 
 dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
 
+import userModel from "./src/lib/db/models/User";
 import messageModel from "./src/lib/db/models/Message";
 import dbConnect from "./src/lib/db/connect";
 import { sendNotificationAPI } from "./src/lib/firebase/notifications";
@@ -74,9 +76,41 @@ io.on("connection", async (socket) => {
         console.error("Error sending notification:", err);
       }
 
-      io.emit("recieved_message", { message: newMessage });
+      io.emit("received_message", { message: newMessage });
     }
   );
+
+  socket.on("user-connected", (userId) => {
+    console.log(`User ${userId} connected`);
+    userModel
+      .updateOne(
+        { _id: new mongoose.Types.ObjectId(userId) },
+        { lastLogin: new Date(), isLoggedIn: true }
+      )
+      .then((updatedUser) => {
+        console.log("User last login updated:", updatedUser);
+      })
+      .catch((error) => {
+        console.error("Error updating user last login:", error);
+      });
+    socket.emit("user-login", userId);
+  });
+
+  socket.on("user-disconnected", (userId) => {
+    console.log(`User ${userId} disconnected`);
+    userModel
+      .updateOne(
+        { _id: new mongoose.Types.ObjectId(userId) },
+        { lastLogin: new Date(), isLoggedIn: false }
+      )
+      .then((updatedUser) => {
+        console.log("User last login updated:", updatedUser);
+      })
+      .catch((error) => {
+        console.error("Error updating user last login:", error);
+      });
+    socket.emit("user-logout", userId);
+  });
 
   socket.on("disconnect", () => {
     console.log("Socket disconnected:", socket.id);

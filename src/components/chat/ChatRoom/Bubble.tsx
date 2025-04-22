@@ -1,8 +1,9 @@
 import React, { useEffect } from "react";
 import moment from "moment";
-import useIsVisible from "@/hooks/useIsVisible";
 import { cn } from "@/lib/utils";
+import useInScrollViewport from "@/hooks/useIsVisible";
 import useUserStore from "@/stores/useUserStore";
+import useChatStore from "@/stores/useChatStore";
 
 const Bubble = ({
   direction,
@@ -19,12 +20,15 @@ const Bubble = ({
   read: boolean;
   receipentId: string;
 }) => {
-  const ref = React.createRef<HTMLDivElement | null>();
-  const isVisible = useIsVisible(ref);
+  const ref = React.createRef<HTMLDivElement>();
   const loggedInUserId = useUserStore((state) => state.user?.id);
+  const markMessageRead = useChatStore((state) => state.markMessageRead);
+  const decrementChatCount = useChatStore((state) => state.decrementChatCount);
+  const isVisible = useInScrollViewport(ref);
 
   useEffect(() => {
     if (isVisible) {
+      console.log("Message seen:");
       if (!read && receipentId === loggedInUserId) {
         console.log({ read });
         fetch(`/api/messages/read`, {
@@ -35,8 +39,10 @@ const Bubble = ({
           body: JSON.stringify({ id: messageId }),
         })
           .then((res) => res.json())
-          .then((data) => {
-            console.log("Message marked as read", data);
+          .then(() => {
+            // update message count in chat store
+            markMessageRead(messageId);
+            decrementChatCount();
           })
           .catch((err) => {
             console.error("Error marking message as read", err);
@@ -44,6 +50,7 @@ const Bubble = ({
       }
     }
   }, [isVisible]);
+
   return (
     <div
       ref={ref}
