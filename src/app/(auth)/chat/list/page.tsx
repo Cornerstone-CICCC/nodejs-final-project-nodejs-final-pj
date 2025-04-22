@@ -15,7 +15,7 @@ const List = () => {
     if (chats.chatList.length === 0) {
       chats.fetchChatListUsers();
     }
-  }, [chats]);
+  }, []);
 
   return (
     <div className="md:grid md:grid-cols-3">

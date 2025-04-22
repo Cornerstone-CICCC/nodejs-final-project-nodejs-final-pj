@@ -22,6 +22,9 @@ interface ChatRoomProps {
 const ChatRoom = ({ isMobile, messages, user }: ChatRoomProps) => {
   const scrollAreaRef = React.useRef<HTMLDivElement>(null);
   const loggedInUserId = useUserStore((state) => state.user?.id);
+  const activeChatRecipientId = useChatStore(
+    (state) => state.activeChatRecipientId
+  );
   const fetchMessages = useChatStore((state) => state.fetchMessages);
   const pushMessageToActiveChat = useChatStore(
     (state) => state.pushMessageToActiveChat
@@ -43,10 +46,19 @@ const ChatRoom = ({ isMobile, messages, user }: ChatRoomProps) => {
   }, []);
 
   useEffect(() => {
-    socket.on("recieved_message", (data) => {
+    socket.on("recieved_message", (data: { message: ChatMessage }) => {
       pushMessageToActiveChat(data.message);
-      setLastMessagePreview(data.message);
-      console.log({ data });
+      let increamentCount = false;
+      if (
+        activeChatRecipientId &&
+        data.message.recipientId !== activeChatRecipientId &&
+        data.message.senderId !== user?._id
+      ) {
+        increamentCount = true;
+      }
+      setLastMessagePreview(data.message, increamentCount);
+
+      if (increamentCount) return;
       scrollAreaRef.current?.scrollTo({
         top: scrollAreaRef.current.scrollHeight,
         behavior: "smooth",
@@ -91,7 +103,7 @@ const ChatRoom = ({ isMobile, messages, user }: ChatRoomProps) => {
           >
             {messages.map((msg) => (
               <Bubble
-                key={msg.id}
+                key={msg.id + crypto.randomUUID()}
                 messageId={msg.id}
                 direction={msg.senderId === loggedInUserId ? "right" : "left"}
                 read={msg.read}

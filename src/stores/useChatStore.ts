@@ -13,8 +13,11 @@ interface ChatState {
   setActiveChatRecipientId: (id: string) => void;
   pushMessageToActiveChat: (message: ChatMessage) => void;
   decrementChatCount: () => void;
-  incrementChatCount: () => void;
-  setLastMessagePreview: (message: ChatMessage) => void;
+  // incrementChatCount: (userId: string) => void;
+  setLastMessagePreview: (
+    message: ChatMessage,
+    incrementChatCount: boolean
+  ) => void;
   fetchMessages: () => Promise<void>;
   setChatList: (chats: Chat) => void;
   fetchChatListUsers: () => Promise<void>;
@@ -29,8 +32,8 @@ const useChatStore = create<ChatState>()(
       setActiveChatRecipientId: (id) => set({ activeChatRecipientId: id }),
       setChatList: (chats) => set({ chats }),
       decrementChatCount: () => {},
-      incrementChatCount: () => {},
-      setLastMessagePreview: (message) => {
+      setLastMessagePreview: (message, incrementChatCount = false) => {
+        const user = useUserStore.getState().user;
         const updatedChatList = get().chatList.map((chatUser) => {
           if (
             chatUser._id === message.recipientId ||
@@ -38,8 +41,14 @@ const useChatStore = create<ChatState>()(
           ) {
             return {
               ...chatUser,
+              unreadCount:
+                incrementChatCount && chatUser._id !== user?.id
+                  ? chatUser.unreadCount
+                    ? chatUser.unreadCount + 1
+                    : 1
+                  : chatUser.unreadCount,
               lastMessage: message.text,
-              lastMessageTimestamp: message.createdAt,
+              lastMessageTimestamp: message.updatedAt,
             };
           }
           return chatUser;
