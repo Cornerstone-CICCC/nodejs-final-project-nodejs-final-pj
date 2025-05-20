@@ -23,13 +23,13 @@ const UserInfo = () => {
         <div className="relative w-24 h-24 rounded-full overflow-hidden">
           <Image
             src={user.fileId || "/default-profile.png"}
-            alt="Profile Image"
+            alt="Profile Image" // Good but would be better if you can include the user's name as well like Nana's Profile Image
             layout="fill"
             objectFit="cover"
           />
         </div>
         <h1 className="text-4xl font-semibold">
-          {user.name ? user.name : "New user"}
+          {user.name ? user.name : "New user"} {/** Can rewrite this as user.name ?? "New User" */}
         </h1>
         <p className=" mt-2 text-center">{user.bio}</p>
         <p className="text-gray-600">{user.email}</p>

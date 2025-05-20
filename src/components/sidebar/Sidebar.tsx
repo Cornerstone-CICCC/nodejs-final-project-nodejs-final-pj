@@ -19,7 +19,7 @@ const Sidebar = () => {
     <div className="flex flex-col mb-8">
       <div className="inline-block">
         <Button
-          variant={"link"}
+          variant={"link"} // Can just be "link"
           className={cn(
             "flex-shrink-0 flex-grow-0 w-auto justify-start px-0 border-black rounded-none hover:underline-offset-[12px]",
             checkPath("profile") && "border-b-2 hover:no-underline"
@@ -31,11 +31,12 @@ const Sidebar = () => {
       </div>
       <div className="inline-block">
         <Button
-          variant={"link"}
+          variant={"link"} // Can just be "link"
           className={cn(
             "flex-shrink-0 flex-grow-0 w-auto justify-start px-0 border-black rounded-none mt-1.5 hover:underline-offset-[12px]",
             checkPath("notifications") && "border-b-2 hover:no-underline"
           )}
+          // Missing asChild prop
         >
           <Link href="/notifications">Notifications</Link>
         </Button>
