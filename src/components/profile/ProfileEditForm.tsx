@@ -82,7 +82,7 @@ const ProfileEditForm = () => {
       }
 
       setUser(updatedUser);
-      router.push(`/profile/${user.id}`);
+      router.push(`/profile/${user.id}`); // You can use router.replace instead so that you can also include a toast success
     } catch (err) {
       console.log(err);
     }

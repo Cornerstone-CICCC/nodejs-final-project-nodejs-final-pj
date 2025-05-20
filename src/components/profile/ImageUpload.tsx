@@ -42,7 +42,7 @@ const ImageUpload = ({ className, image, onFileSelect }: ImageUploadProps) => {
             objectFit="cover"
           />
         </div>
-        <Button onClick={() => document.getElementById("imageInput")?.click()}>
+        <Button onClick={() => document.getElementById("imageInput")?.click()}> {/** Use useRef instead of relying on getElementById */}
           Change
           <input
             id="imageInput"

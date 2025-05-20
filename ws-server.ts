@@ -15,7 +15,7 @@ import { sendNotificationAPI } from "./src/lib/firebase/notifications";
 
 const app = express();
 const httpServer = createServer(app);
-const frontendUrl = "http://localhost:3000";
+const frontendUrl = "http://localhost:3000"; // Better to place URLs in an env file for flexibility
 
 app.use(express.json());
 
@@ -34,8 +34,9 @@ const PORT = process.env.PORT || 3001;
 
 io.on("connection", async (socket) => {
   console.log("Socket connected:", socket.id);
-  await dbConnect();
+  await dbConnect(); // You are connecting to the database for every new connection/client. It's better to put this outside to minimize the number of calls
 
+  // Better to move socket events to a separate file to avoid cluttering the server file
   socket.on(
     "send_message",
     async (data: {

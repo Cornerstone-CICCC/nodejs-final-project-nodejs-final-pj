@@ -24,6 +24,7 @@ interface ChatState {
   fetchChatListUsers: () => Promise<void>;
 }
 
+// Better to break this into smaller stores for better readability
 const useChatStore = create<ChatState>()(
   persist(
     (set, get) => ({
